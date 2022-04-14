@@ -9,7 +9,7 @@ const SearchFooter = () => (
       </p>
     </div>
 
-    <h3 className='govuk-heading-m govuk-!-margin-top-8'>Find an offender by using any combination of:</h3>
+    <h3 className='govuk-heading-m govuk-!-margin-top-8'>Find people by using any combination of:</h3>
     <ul className='govuk-list govuk-list--bullet'>
       <li>name and date of birth</li>
       <li>CRN, PNC and National Insurance numbers</li>
