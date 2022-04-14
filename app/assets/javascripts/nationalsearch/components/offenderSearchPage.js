@@ -26,7 +26,7 @@ const OffenderSearchPage = ({ firstTimeIn, showWelcomeBanner, reloadRecentSearch
 
         <div className='moj-interrupt govuk-!-padding-5 govuk-!-margin-bottom-0 app-position-relative' style={{'minHeight': '148px'}}>
 
-          <h1 className='govuk-heading-l moj-!-color-white govuk-!-margin-bottom-2'>Search for an offender</h1>
+          <h1 className='govuk-heading-l moj-!-color-white govuk-!-margin-bottom-2'>Search for people on probation</h1>
 
           <div className='app-national-search-add'>
             <AddNewOffenderLink tabIndex='3' />

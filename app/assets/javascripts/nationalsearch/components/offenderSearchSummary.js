@@ -187,7 +187,7 @@ const Risk = ({ risk }) => {
 
 const CurrentOffender = ({ current }) => {
   if (current && current === '1') {
-    return (<span className='govuk-!-margin-right-1'>Current offender&nbsp;|</span>)
+    return (<span className='govuk-!-margin-right-1'>Current&nbsp;|</span>)
   }
   return (<span />)
 }

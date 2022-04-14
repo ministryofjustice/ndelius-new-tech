@@ -6,7 +6,7 @@ Feature: Search Page
 
     When the user is on the National Search page
     Then the user must see an input field for a search phrase
-    And see a link to "Add a new offender"
+    And see a link to "Add a new person"
     And see a link to "Tips for getting better results"
     And see a link to "previous search"
     And see a link to "feedback"
