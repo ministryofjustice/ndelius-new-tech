@@ -78,6 +78,19 @@ const HelpPage = () => {
             </li>
           </ul>
 
+          <ul className='govuk-list govuk-list--bullet govuk-!-margin-top-2'>
+            <li>
+              <h2 className='govuk-heading-m govuk-!-margin-0'>Include telephone numbers in your search</h2>
+              <p className='govuk-!-margin-top-1'>Telephone number searching can be included on thier own or alongside other search terms.
+                Telephone number terms need to contain more than 5 digits.
+                Avoid including spaces in telephone numbers these will not match when <strong>'Match all Terms'</strong> is selected.
+                Partial telephone numbers will also match as long as the number of digits in the search term is greater than 5.</p>
+
+              <div className='govuk-!-margin-2' />
+              <SearchHintBox hint='0779876767' />
+            </li>
+          </ul>
+
           <p>&nbsp;</p>
 
           <Link to='nationalSearch'><span className='app-icon app-icon__prev-arrow govuk-!-margin-right-1' />
