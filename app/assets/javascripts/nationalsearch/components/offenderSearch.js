@@ -13,7 +13,7 @@ const OffenderSearch = ({ searchTerm, probationAreasFilter, search, searchType }
       <label htmlFor='searchTerms' className='govuk-visually-hidden'>Results will be updated as you type</label>
       <input id='searchTerms' name='searchTerms' type='search' tabIndex='1'
              autoFocus className='govuk-body-l govuk-input app-search-input govuk-!-padding-3'
-             placeholder='Any combination of names, dates of birth, ID numbers, towns and postcodes'
+             placeholder='Any combination of names, dates of birth, ID numbers, telephone numbers, towns and postcodes'
              value={searchTerm}
              onChange={event => search(event.target.value, searchType, probationAreasFilter)} />
     </form>
