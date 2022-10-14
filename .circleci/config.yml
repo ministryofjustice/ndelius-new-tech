@@ -355,15 +355,6 @@ workflows:
           requires:
             - request-pre-prod-approval
       - deploy:
-          name: deploy_to_perf
-          context: hmpps-delius-deploy-to-ecs-perf
-          env-vars: >-
-            container=new-tech,name=HMPPS_AUTH_BASE_URL,            value=https://sign-in-preprod.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=PROBATION_OFFENDER_SEARCH_URL,  value=https://probation-offender-search-preprod.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://api-preprod.prison.service.justice.gov.uk/
-          requires:
-            - request-pre-prod-approval
-      - deploy:
           name: deploy_to_pre_prod
           context: hmpps-delius-deploy-to-ecs-pre-prod
           env-vars: >-
@@ -377,7 +368,6 @@ workflows:
           requires:
             - deploy_to_stage
             - deploy_to_pre_prod
-            - deploy_to_perf
       - deploy:
           name: deploy_to_production
           context: hmpps-delius-deploy-to-ecs-prod
