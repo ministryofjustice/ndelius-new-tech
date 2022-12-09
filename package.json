@@ -42,7 +42,7 @@
     "jest": "24.9.0",
     "sinon": "7.5.0",
     "sinon-chai": "3.3.0",
-    "tinymce": "5.1.4"
+    "tinymce": "5.10.7"
   },
   "dependencies": {
     "@babel/polyfill": "7.7.0",
