@@ -12,6 +12,10 @@ const GovUkPhaseBanner = () => {
           Access the <LegacySearchLink tabIndex='1'>previous search</LegacySearchLink> here.
         </span>
       </p>
+        <p className='govuk-phase-banner__content'>
+            <br/>
+            We are planning to consolidate the two search screens which are currently available in Delius.  Please use the above feedback link to let us know of features you find most useful on both this and the old search screen.
+      </p>
     </div>
   )
 }
