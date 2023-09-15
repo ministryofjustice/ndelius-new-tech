@@ -326,7 +326,7 @@ workflows:
           env-vars: >-
             container=new-tech,name=HMPPS_AUTH_BASE_URL,            value=https://sign-in-dev.hmpps.service.justice.gov.uk/,
             container=new-tech,name=PROBATION_OFFENDER_SEARCH_URL,  value=https://probation-offender-search-dev.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://api-dev.prison.service.justice.gov.uk/
+            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://prison-api-dev.prison.service.justice.gov.uk/
           requires:
             - artifacts
       - deploy:
@@ -335,7 +335,7 @@ workflows:
           env-vars: >-
             container=new-tech,name=HMPPS_AUTH_BASE_URL,            value=https://sign-in-dev.hmpps.service.justice.gov.uk/,
             container=new-tech,name=PROBATION_OFFENDER_SEARCH_URL,  value=https://probation-offender-search-dev.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://api-dev.prison.service.justice.gov.uk/
+            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://prison-api-dev.prison.service.justice.gov.uk/
           requires:
             - deploy_to_dev
           filters:
