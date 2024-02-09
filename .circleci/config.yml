@@ -351,7 +351,7 @@ workflows:
           env-vars: >-
             container=new-tech,name=HMPPS_AUTH_BASE_URL,            value=https://sign-in-preprod.hmpps.service.justice.gov.uk/,
             container=new-tech,name=PROBATION_OFFENDER_SEARCH_URL,  value=https://probation-offender-search-staging.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://api-preprod.prison.service.justice.gov.uk/
+            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://prison-api-preprod.prison.service.justice.gov.uk/
           requires:
             - request-pre-prod-approval
       - deploy:
@@ -360,7 +360,7 @@ workflows:
           env-vars: >-
             container=new-tech,name=HMPPS_AUTH_BASE_URL,            value=https://sign-in-preprod.hmpps.service.justice.gov.uk/,
             container=new-tech,name=PROBATION_OFFENDER_SEARCH_URL,  value=https://probation-offender-search-preprod.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://api-preprod.prison.service.justice.gov.uk/
+            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://prison-api-preprod.prison.service.justice.gov.uk/
           requires:
             - request-pre-prod-approval
       - request-prod-approval:
