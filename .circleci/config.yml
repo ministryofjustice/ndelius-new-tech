@@ -8,29 +8,8 @@ defaults: &defaults
 version: 2.1
 
 orbs:
-  aws-cli: circleci/aws-cli@1.4.0
-  aws-ecr: circleci/aws-ecr@6.15.3
-  aws-ecs: circleci/aws-ecs@2.0.0
-  hmpps: ministryofjustice/hmpps@2.2
   mem: circleci/rememborb@0.0.1
-  queue: eddiewebb/queue@1.5.0
-
-commands:
-  assume_role:
-    parameters:
-      role-arn:
-        type: string
-    steps:
-      - run:
-          name: Assume IAM role
-          # This is a workaround for the aws-ecs/update-service CircleCI command not taking a profile parameter, and the underlying aws cli command not honouring the AWS_PROFILE env var.
-          # See https://github.com/CircleCI-Public/aws-ecs-orb/issues/41 for further details
-          command: |
-            temp_role=$(aws sts assume-role --role-arn <<parameters.role-arn>> --role-session-name "circleci-$CIRCLE_BUILD_NUM-$RANDOM")
-            echo "export AWS_ACCESS_KEY_ID=$(echo $temp_role | jq .Credentials.AccessKeyId | xargs)" >> $BASH_ENV; source $BASH_ENV;
-            echo "export AWS_SECRET_ACCESS_KEY=$(echo $temp_role | jq .Credentials.SecretAccessKey | xargs)" >> $BASH_ENV; source $BASH_ENV;
-            echo "export AWS_SESSION_TOKEN=$(echo $temp_role | jq .Credentials.SessionToken | xargs)" >> $BASH_ENV; source $BASH_ENV;
-            aws configure set aws_session_token "$(echo $temp_role | jq .Credentials.SessionToken | xargs)" --profile default
+  hmpps: ministryofjustice/hmpps@7
 
 general:
   branches:
@@ -227,65 +206,32 @@ jobs:
       - store_artifacts:
           path: target/artifacts
           destination: jars
-      - aws-cli/setup
-      - assume_role:
-          role-arn: $AWS_ROLE_ARN
       - setup_remote_docker:
           docker_layer_caching: true
-      - aws-ecr/build-and-push-image:
-          checkout: false
-          repo: hmpps/new-tech-web
-          tag: $VERSION
-      - when:
-          condition:
-            equal: [ master, << pipeline.git.branch >> ]
-          steps:
-            - aws-ecr/build-and-push-image:
-                checkout: false
-                repo: hmpps/new-tech-web
-                tag: latest
-  deploy:
-    parameters:
-      env-vars:
-        type: string
-    docker:
-      - image: circleci/python
-    steps:
-      - mem/recall:
-          env_var: APP_VERSION
-      - queue/until_front_of_line:
-          consider-branch: false
-          time: '10'
-      - aws-cli/setup
       - run:
-          name: Assume IAM role
-          # This is a workaround for the aws-ecs/update-service CircleCI command not taking a profile parameter, and the underlying aws cli command not honouring the AWS_PROFILE env var.
-          # See https://github.com/CircleCI-Public/aws-ecs-orb/issues/41 for further details
+          name: Create IMAGE_NAME env var
+          command: echo "export IMAGE_NAME=quay.io/hmpps/ndelius-new-tech" >> $BASH_ENV
+      - mem/remember:
+          env_var: IMAGE_NAME
+          value: "${IMAGE_NAME}"
+      - run:
+          name: Build and push container image
           command: |
-            temp_role=$(aws sts assume-role --role-arn $AWS_ROLE_ARN --role-session-name "circleci-$CIRCLE_BUILD_NUM-$RANDOM")
-            echo "export AWS_ACCESS_KEY_ID=$(echo $temp_role | jq .Credentials.AccessKeyId | xargs)" >> $BASH_ENV; source $BASH_ENV;
-            echo "export AWS_SECRET_ACCESS_KEY=$(echo $temp_role | jq .Credentials.SecretAccessKey | xargs)" >> $BASH_ENV; source $BASH_ENV;
-            echo "export AWS_SESSION_TOKEN=$(echo $temp_role | jq .Credentials.SessionToken | xargs)" >> $BASH_ENV; source $BASH_ENV;
-            aws configure set aws_session_token "$(echo $temp_role | jq .Credentials.SessionToken | xargs)" --profile default
-      - aws-ecs/update-service:
-          cluster-name: $AWS_ECS_CLUSTER_NAME
-          family: $AWS_ECS_ENV_NAME-new-tech-task-definition
-          service-name: $AWS_ECS_ENV_NAME-new-tech-service
-          container-image-name-updates: container=new-tech,tag=$APP_VERSION
-          container-env-var-updates: >-
-            container=new-tech,name=PARAMS_USER_TOKEN_VALID_DURATION,   value=1h,
-            container=new-tech,name=PRISONER_API_PROVIDER,              value=elite,
-            container=new-tech,name=OFFENDER_SEARCH_PROVIDER,           value=probation-offender-search,
-            container=new-tech,name=STORE_PROVIDER,                     value=alfresco,
-            container=new-tech,name=STORE_ALFRESCO_USER,                value=N00,
-            container=new-tech,name=FEEDBACK_FORM_URL,                  value=https://docs.google.com/forms/d/e/1FAIpQLSeqCGcg8l6obob1_uUb_OP6SS3Nj78Sny4V2CuBpmtp294WpA/viewform,
-            container=new-tech,name=FEEDBACK_PAROM1_FORM_URL,           value=https://docs.google.com/forms/d/e/1FAIpQLSeqCGcg8l6obob1_uUb_OP6SS3Nj78Sny4V2CuBpmtp294WpA/viewform,
-            container=new-tech,name=FEEDBACK_SEARCH_FORM_URL,           value=https://docs.google.com/forms/d/e/1FAIpQLSeqCGcg8l6obob1_uUb_OP6SS3Nj78Sny4V2CuBpmtp294WpA/viewform,
-            container=new-tech,name=FEEDBACK_OFFENDER_SUMMARY_FORM_URL, value=https://docs.google.com/forms/d/e/1FAIpQLSeqCGcg8l6obob1_uUb_OP6SS3Nj78Sny4V2CuBpmtp294WpA/viewform,
-            container=new-tech,name=DELIUS_API_BASE_URL,                value=http://community-api.ecs.cluster:8080/api/,
-            container=new-tech,name=PDF_GENERATOR_URL,                  value=http://pdf-generator.ecs.cluster:8080/,
-            << parameters.env-vars >>
-          verify-revision-is-deployed: true
+            docker build --pull \
+              --rm=false . \
+              --build-arg BUILD_NUMBER=$APP_VERSION \
+              --build-arg GIT_REF=$CIRCLE_SHA1 \
+              --build-arg GIT_BRANCH=$CIRCLE_BRANCH \
+              --tag "${IMAGE_NAME}:${APP_VERSION}" \
+              --label "app.version=${APP_VERSION}" \
+              --label "build.version=${APP_VERSION}" \
+              --label "build.number=${CIRCLE_BUILD_NUM}" \
+              --label "build.url=${CIRCLE_BUILD_URL}" \
+              --label "build.gitref=${CIRCLE_SHA1}"
+            docker login -u="${QUAYIO_USERNAME}" -p="${QUAYIO_PASSWORD}" quay.io
+            docker tag "${IMAGE_NAME}:${APP_VERSION}" "${IMAGE_NAME}:latest"
+            docker push "${IMAGE_NAME}:${APP_VERSION}"
+            docker push "${IMAGE_NAME}:latest"
 
 workflows:
   version: 2
@@ -311,60 +257,45 @@ workflows:
           requires:
             - build
       - artifacts:
-          context: hmpps-delius-push-to-ecr
           requires:
             - build
             - bddOther
-            - bddParom1
             - bddSFR
-            - bddOffenderSummary
-            - bddNationalSearch
             - unitTests
-      - deploy:
-          name: deploy_to_test
-          context: hmpps-delius-deploy-to-ecs-test
-          env-vars: >-
-            container=new-tech,name=HMPPS_AUTH_BASE_URL,            value=https://sign-in-dev.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=PROBATION_OFFENDER_SEARCH_URL,  value=https://probation-offender-search-dev.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://prison-api-dev.prison.service.justice.gov.uk/
-          requires:
-            - artifacts
+      - hmpps/deploy_env:
+          name: deploy_test
+          env: "test"
+          context: hmpps-common-vars
           filters:
             branches:
-              only: master
-      - request-pre-prod-approval:
-          type: approval
+              only:
+                - master
           requires:
-            - deploy_to_test
-      - deploy:
-          name: deploy_to_stage
-          context: hmpps-delius-deploy-to-ecs-stage
-          env-vars: >-
-            container=new-tech,name=HMPPS_AUTH_BASE_URL,            value=https://sign-in-preprod.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=PROBATION_OFFENDER_SEARCH_URL,  value=https://probation-offender-search-staging.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://prison-api-preprod.prison.service.justice.gov.uk/
+            - artifacts
+      - hmpps/deploy_env:
+          name: deploy_preprod
+          env: "preprod"
+          context:
+            - hmpps-common-vars
+            - hmpps-delius-core-preprod
+          filters:
+            branches:
+              only:
+                - master
           requires:
-            - request-pre-prod-approval
-      - deploy:
-          name: deploy_to_pre_prod
-          context: hmpps-delius-deploy-to-ecs-pre-prod
-          env-vars: >-
-            container=new-tech,name=HMPPS_AUTH_BASE_URL,            value=https://sign-in-preprod.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=PROBATION_OFFENDER_SEARCH_URL,  value=https://probation-offender-search-preprod.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://prison-api-preprod.prison.service.justice.gov.uk/
-          requires:
-            - request-pre-prod-approval
+            - artifacts
       - request-prod-approval:
           type: approval
           requires:
-            - deploy_to_stage
-            - deploy_to_pre_prod
-      - deploy:
-          name: deploy_to_production
-          context: hmpps-delius-deploy-to-ecs-prod
-          env-vars: >-
-            container=new-tech,name=HMPPS_AUTH_BASE_URL,            value=https://sign-in.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=PROBATION_OFFENDER_SEARCH_URL,  value=https://probation-offender-search.hmpps.service.justice.gov.uk/,
-            container=new-tech,name=NOMIS_API_BASE_URL,             value=https://prison-api.prison.service.justice.gov.uk/
+            - deploy_test
+            - deploy_preprod
+      - hmpps/deploy_env:
+          name: deploy_prod
+          env: "prod"
+          slack_notification: true
+          slack_channel_name: probation-integration-notifications
+          context:
+            - hmpps-common-vars
+            - hmpps-delius-core-prod
           requires:
             - request-prod-approval

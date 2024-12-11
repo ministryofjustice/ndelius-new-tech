@@ -1,0 +1,64 @@
+# Values here are the same across all environments
+generic-service:
+  nameOverride: ndelius-new-tech
+
+  resources:
+    requests:
+      cpu: 1
+      memory: 512Mi
+
+  image:
+    repository: quay.io/hmpps/ndelius-new-tech
+    tag: app_version # override at deployment time
+    port: 9000
+
+  ingress:
+    enabled: true
+    v1_2_enabled: true
+    v0_47_enabled: false
+    tlsSecretName: ndelius-new-tech-cert
+
+  env:
+    PARAMS_USER_TOKEN_VALID_DURATION: 1h
+    PRISONER_API_PROVIDER: elite
+    OFFENDER_SEARCH_PROVIDER: probation-offender-search
+    STORE_PROVIDER: alfresco
+    STORE_ALFRESCO_USER: N00
+    FEEDBACK_FORM_URL: https://docs.google.com/forms/d/e/1FAIpQLSeqCGcg8l6obob1_uUb_OP6SS3Nj78Sny4V2CuBpmtp294WpA/viewform
+    FEEDBACK_PAROM1_FORM_URL: https://docs.google.com/forms/d/e/1FAIpQLSeqCGcg8l6obob1_uUb_OP6SS3Nj78Sny4V2CuBpmtp294WpA/viewform
+    FEEDBACK_SEARCH_FORM_URL: https://docs.google.com/forms/d/e/1FAIpQLSeqCGcg8l6obob1_uUb_OP6SS3Nj78Sny4V2CuBpmtp294WpA/viewform
+    FEEDBACK_OFFENDER_SUMMARY_FORM_URL: https://docs.google.com/forms/d/e/1FAIpQLSeqCGcg8l6obob1_uUb_OP6SS3Nj78Sny4V2CuBpmtp294WpA/viewform
+    DELIUS_API_BASE_URL: http://community-api/api/
+    PDF_GENERATOR_URL: http://pdf-generator-ndelius-new-tech-pdf-generator/
+    LDAP_STRING_FORMAT: "cn=%s,ou=Users,dc=moj,dc=com"
+    BASE_PATH: /newTech/
+
+
+  namespace_secrets:
+    ndelius-new-tech:
+      APPLICATION_SECRET: APPLICATION_SECRET
+      CUSTODY_API_USERNAME: CUSTODY_API_USERNAME
+      CUSTODY_API_PASSWORD: CUSTODY_API_PASSWORD
+      GOOGLE_ANALYTICS_ID: GOOGLE_ANALYTICS_ID
+      PARAMS_SECRET_KEY: PARAMS_SECRET_KEY
+
+  allowlist:
+    groups:
+      - global_protect
+      - unilink_staff
+
+  readinessProbe:
+    httpGet:
+      port: 9000
+      path: /newTech/healthcheck
+  livenessProbe:
+    httpGet:
+      port: 9000
+      path: /newTech/healthcheck
+  startupProbe:
+    httpGet:
+      port: 9000
+      path: /newTech/healthcheck
+
+generic-prometheus-alerts:
+  targetApplication: ndelius-new-tech
