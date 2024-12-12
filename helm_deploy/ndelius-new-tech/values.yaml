@@ -44,8 +44,12 @@ generic-service:
 
   allowlist:
     groups:
-      - global_protect
+      - moj_cloud_platform
+      - digital_staff_and_mojo
       - unilink_staff
+      - probation
+      - prisons
+      - private_prisons
 
   readinessProbe:
     httpGet:
