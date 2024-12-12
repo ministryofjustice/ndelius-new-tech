@@ -10,6 +10,9 @@ generic-service:
     NOMIS_API_BASE_URL: https://prison-api-dev.prison.service.justice.gov.uk/
     STORE_ALFRESCO_URL: https://hmpps-delius-alfresco-test.apps.live.cloud-platform.service.justice.gov.uk/alfresco/service/
 
+  scheduledDowntime:
+    enabled: true
+
 generic-prometheus-alerts:
   alertSeverity: probation-integration-notifications
   businessHoursOnly: true
