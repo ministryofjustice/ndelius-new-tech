@@ -54,15 +54,15 @@ generic-service:
   readinessProbe:
     httpGet:
       port: 9000
-      path: /newTech/healthcheck
+      path: /newTech/assets/images/favicon.ico
   livenessProbe:
     httpGet:
       port: 9000
-      path: /newTech/healthcheck
+      path: /newTech/assets/images/favicon.ico
   startupProbe:
     httpGet:
       port: 9000
-      path: /newTech/healthcheck
+      path: /newTech/assets/images/favicon.ico
 
 generic-prometheus-alerts:
   targetApplication: ndelius-new-tech
