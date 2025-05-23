@@ -10,7 +10,6 @@ import interfaces.DocumentStore;
 import interfaces.HealthCheckResult;
 import lombok.val;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.util.encoders.Base64;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import play.Logger;
@@ -20,6 +19,7 @@ import javax.inject.Inject;
 import java.net.URLEncoder;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -44,7 +44,7 @@ public class MongoDocumentStore implements DocumentStore {
     public CompletionStage<Map<String, String>> uploadNewPdf(Byte[] document, DocumentEntity documentEntity, String onBehalfOfUser,
                                                              String originalData, String crn, Long entityId) {
         val documentBytes = ArrayUtils.toPrimitive(document);
-        val doc = Base64.toBase64String(documentBytes);
+        val doc = Base64.getEncoder().encode(documentBytes);
         val key = ObjectId.get();
         val parameters = new HashMap<String, Object>() {
             {
@@ -89,7 +89,7 @@ public class MongoDocumentStore implements DocumentStore {
                 .find(eq("_id", new ObjectId(documentId)))
                 .first()
                 .doOnError(result::completeExceptionally)
-                .subscribe(thing -> result.complete(Base64.decode((String)thing.get("document"))));
+                .subscribe(thing -> result.complete(Base64.getDecoder().decode((String)thing.get("document"))));
 
         Logger.debug(String.format("retrieveDocument: for key %s", documentId));
         return result;
@@ -126,7 +126,7 @@ public class MongoDocumentStore implements DocumentStore {
             val entityId = (String) result.get("entityId");
 
             val documentBytes = ArrayUtils.toPrimitive(document);
-            val doc = Base64.toBase64String(documentBytes);
+            val doc = java.util.Base64.getEncoder().encode(documentBytes);
             val newParameters = new HashMap<String, Object>() {
                 {
                     put("document", doc);

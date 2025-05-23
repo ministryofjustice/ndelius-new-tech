@@ -15,6 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http;
 import play.twirl.api.Content;
 
 import java.util.List;
@@ -96,12 +97,12 @@ public class ReportGeneratorWizardControllerTest_logging {
         }
 
         @Override
-        protected Content renderCompletedView(Byte[] bytes) {
+        protected Content renderCompletedView(Http.Request request, Byte[] bytes) {
             return null;
         }
 
         @Override
-        protected Content renderCancelledView() {
+        protected Content renderCancelledView(Http.Request request) {
             return null;
         }
 

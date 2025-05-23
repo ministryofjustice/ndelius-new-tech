@@ -82,7 +82,7 @@ public interface JsonHelper {
         return Json.fromJson(Json.parse(json), clazz);
     }
 
-    static <T> T readValue(String json, TypeReference type) {
+    static <T> T readValue(String json, TypeReference<T> type) {
         try {
             return Json.mapper().readValue(json, type);
         } catch(Exception e) {

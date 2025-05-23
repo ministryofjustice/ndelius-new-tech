@@ -3,7 +3,7 @@
 @import com.typesafe.config.Config
 @import helpers.CallHelper.relative
 @import helpers.JsonHelper.stringify
-@this(webJarsUtil: WebJarsUtil)(implicit configuration: Config)
+@this(webJarsUtil: WebJarsUtil)(implicit configuration: Config, request: Http.Request)
 
 
 <!DOCTYPE html>
@@ -16,8 +16,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="x-ua-compatible" content="IE=edge" />
 
-    <link rel="stylesheet" media="screen" href='@relative(routes.Assets.versioned("stylesheets/main.css"))' />
-    <link rel="shortcut icon" type="image/x-icon" href='@relative(routes.Assets.versioned("images/favicon.ico"))' />
+    <link rel="stylesheet" media="screen" href='@relative(request, routes.Assets.versioned("stylesheets/main.css"))' />
+    <link rel="shortcut icon" type="image/x-icon" href='@relative(request, routes.Assets.versioned("images/favicon.ico"))' />
 
     @googleAnalyticsHead()
 
@@ -25,8 +25,8 @@
   <body>
     <div id="content"></div>
 
-    <script type='text/javascript' src='@relative(webJarsUtil.url("underscorejs", "underscore.js").get)'></script>
-    <script type='text/javascript' src='@relative(routes.Assets.versioned("bundle.js"))'></script>
+    <script type='text/javascript' src='@relative(request, webJarsUtil.locate("underscorejs", "underscore.js").path.get)'></script>
+    <script type='text/javascript' src='@relative(request, routes.Assets.versioned("bundle.js"))'></script>
 
   </body>
   </html>

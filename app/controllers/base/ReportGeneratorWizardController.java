@@ -7,7 +7,6 @@ import com.typesafe.config.Config;
 import controllers.ParamsValidator;
 import data.base.ReportGeneratorWizardData;
 import helpers.InvalidCredentialsException;
-import helpers.JsonHelper;
 import interfaces.DocumentStore;
 import interfaces.OffenderApi;
 import interfaces.OffenderApi.Offender;
@@ -18,8 +17,12 @@ import org.springframework.cglib.beans.BeanMap;
 import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.Logger;
+import play.i18n.Lang;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
+import play.libs.typedmap.TypedKey;
+import play.libs.typedmap.TypedMap;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.twirl.api.Content;
 
@@ -66,8 +69,8 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
         return configuration;
     }
 
-    public CompletionStage<Result> reportPost() {
-        return wizardForm.bindFromRequest().value().
+    public CompletionStage<Result> reportPost(Http.Request request) {
+        return wizardForm.bindFromRequest(request).value().
                 map(wizardData -> generateAndStoreReport(wizardData).
                     exceptionally(error -> error(wizardData, error)).
                     thenApply(this::toJsonResult)).
@@ -106,15 +109,15 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
     }
 
     @Override
-    protected CompletionStage<Map<String, String>> initialParams() {
-        val queryParams = request().queryString().keySet();
+    protected CompletionStage<Map<String, String>> initialParams(Http.Request request) {
+        val queryParams = request.queryString().keySet();
         val continueFromInterstitial = queryParams.contains("continue");
         val stopAtInterstitial = queryParams.contains("documentId") && !continueFromInterstitial;
 
-        val user = Optional.ofNullable(request().queryString().get("user"))
+        val user = Optional.ofNullable(request.queryString().get("user"))
             .map(users -> users[0])
             .orElse(null);
-        val t = Optional.ofNullable(request().queryString().get("t"))
+        val t = Optional.ofNullable(request.queryString().get("t"))
             .map(times -> times[0])
             .orElse(null);
 
@@ -137,19 +140,18 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
 
                 val username = decrypter.apply(user);
 
-                final CompletionStage<String> result = offenderApi.logon(username)
-                    .thenApplyAsync(bearerToken -> {
-                        Logger.info("AUDIT:{}: ReportGeneratorWizardController: Successful logon for user {}", principal(bearerToken), username);
-                        session(OFFENDER_API_BEARER_TOKEN, bearerToken);
-                        return bearerToken;
+				return offenderApi.logon(username)
+					.thenApplyAsync(bearerToken -> {
+						Logger.info("AUDIT:{}: ReportGeneratorWizardController: Successful logon for user {}", principal(bearerToken), username);
+                        request.addAttr(TypedKey.create(OFFENDER_API_BEARER_TOKEN), bearerToken);
+						return bearerToken;
+					}, ec.current());
+            }).orElse(CompletableFuture.completedFuture("ignored"));
 
-                    }, ec.current());
-
-                return result; })
-            .orElse(CompletableFuture.completedFuture("ignored"));
-
-        return possibleBearerTokenRefresh.thenCompose(ignored -> super.initialParams()).thenCompose(params ->
-            loadExistingDocument(params).orElseGet(() -> createNewDocument(params))).thenApply(params -> {
+        return possibleBearerTokenRefresh
+                .thenCompose(bearerToken -> super.initialParams(request))
+                .thenCompose(params ->
+            loadExistingDocument(request, params).orElseGet(() -> createNewDocument(request, params))).thenApply(params -> {
 
             if (stopAtInterstitial) {
                 params.put("originalPageNumber", currentPageButNotInterstitialOrCompletion(params.get("pageNumber")));
@@ -203,13 +205,13 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
     }
 
     @Override
-    protected final CompletionStage<Result> cancelledWizard(T data) {
+    protected final CompletionStage<Result> cancelledWizard(Http.Request request, T data) {
 
-        return CompletableFuture.supplyAsync(() -> ok(renderCancelledView()), ec.current());
+        return CompletableFuture.supplyAsync(() -> ok(renderCancelledView(request)), ec.current());
     }
 
     @Override
-    protected final CompletionStage<Result> completedWizard(T data) {
+    protected final CompletionStage<Result> completedWizard(Http.Request request, T data) {
         Logger.info("AUDIT:{}: Completed report {} crn={}", data.getOnBehalfOfUser(), templateName(), data.getCrn());
 
         final Function<Byte[], CompletionStage<Optional<Byte[]>>> resultIfStored = result ->
@@ -225,10 +227,10 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
                     Logger.error("Completed Wizard: Generation or Storage error - " + data.toString(), error);
                     return Optional.empty();
                 }).
-                thenApplyAsync(result -> result.map(bytes -> ok(renderCompletedView(bytes))).orElseGet(() -> {
+                thenApplyAsync(result -> result.map(bytes -> ok(renderCompletedView(request, bytes))).orElseGet(() -> {
 
                     Logger.warn("Report generator wizard failed");
-                    return wizardFailed(data);
+                    return wizardFailed(request, data);
 
                 }), ec.current()); // Have to provide execution context for HTTP Context to be available when rendering views
     }
@@ -241,20 +243,20 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
 
     protected abstract String templateName();
 
-    protected abstract Content renderCompletedView(Byte[] bytes);
+    protected abstract Content renderCompletedView(Http.Request request, Byte[] bytes);
 
-    protected abstract Content renderCancelledView();
+    protected abstract Content renderCancelledView(Http.Request request);
 
-    protected CompletionStage<Map<String, String>> createNewDocument(Map<String, String> params) {
+    protected CompletionStage<Map<String, String>> createNewDocument(Http.Request request, Map<String, String> params) {
 
         params.put("pageNumber", "1");
         params.put("startDate", new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
 
         val crn = params.get("crn");
-        return offenderApi.getOffenderByCrn(session(OFFENDER_API_BEARER_TOKEN), crn)
+        return offenderApi.getOffenderByCrn(getToken(request), crn)
             .thenApply(offender -> storeReportFilename(params, offender))
             .thenApply(offender -> storeOffenderDetails(params, offender))
-            .thenCompose(updatedParams -> generateAndStoreReport(wizardForm.bind(updatedParams).value().orElseGet(this::newWizardData)).
+            .thenCompose(updatedParams -> generateAndStoreReport(wizardForm.bind(Lang.defaultLang(), TypedMap.empty(), updatedParams).value().orElseGet(this::newWizardData)).
                 thenApply(stored -> {
 
                     updatedParams.put("documentId", stored.get("ID"));
@@ -274,17 +276,17 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
             );
     }
 
-    private Optional<CompletionStage<Map<String, String>>> loadExistingDocument(Map<String, String> params) {
+    private Optional<CompletionStage<Map<String, String>>> loadExistingDocument(Http.Request request, Map<String, String> params) {
 
         return Optional.ofNullable(params.get("documentId")).
             map(documentId -> documentStore.retrieveOriginalData(documentId, params.get("onBehalfOfUser"))).
             map(originalData -> originalData.thenApply(data -> {
-                val info = JsonHelper.jsonToMap(Json.parse(data.getUserData()).get("values"));
+                val info = jsonToMap(Json.parse(data.getUserData()).get("values"));
                 info.put("lastUpdated", data.getLastModifiedDate().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
                 return info;
             })).
             map(originalInfo -> originalInfo.thenComposeAsync(info ->
-                offenderApi.getOffenderByCrn(session(OFFENDER_API_BEARER_TOKEN), info.get("crn"))
+                offenderApi.getOffenderByCrn(getToken(request), info.get("crn"))
                     .thenApply(offender -> storeOffenderDetails(info, offender)), ec.current())).
             map(originalInfo -> originalInfo.thenApply(info -> {
                 info.put("onBehalfOfUser", params.get("onBehalfOfUser"));
@@ -306,7 +308,7 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
     private CompletionStage<Map<String, String>> storeReport(T data, Byte[] document) {
 
         val filename = storedFilename(data);
-        val metaData = JsonHelper.stringify(ImmutableMap.of(
+        val metaData = stringify(ImmutableMap.of(
                 "templateName", templateName(),
                 "values", convertDataToMap(data)
         ));
@@ -382,5 +384,9 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
     private CompletionStage<Map<String, String>> generateAndStoreReport(T data) {
 
         return generateReport(data).thenCompose(result -> storeReport(data, result));
+    }
+
+    protected String getToken(Http.Request request) {
+        return request.attrs().get(TypedKey.create(OFFENDER_API_BEARER_TOKEN));
     }
 }

@@ -1,5 +1,5 @@
 @import helper._
-@(reportForm: Form[_], name: String, label: String, detailsLabel: String, error: Option[String] = None)
+@(reportForm: play.data.Form[_], name: String, label: String, detailsLabel: String, error: Option[String] = None)(implicit request: Http.Request, messagesProvider: MessagesProvider)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 

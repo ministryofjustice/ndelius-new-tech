@@ -48,13 +48,13 @@ class RequestLogger {
     }
 
     private static String userId(Http.Session session) {
-        return Optional.ofNullable(session.get(OFFENDER_API_BEARER_TOKEN))
+        return session.get(OFFENDER_API_BEARER_TOKEN)
                 .map(JwtHelper::principal)
                 .orElse("unknown user");
     }
 
     private static String id(Http.Session session) {
-        return session.get("id");
+        return session.get("id").orElse("unknown id");
     }
 
     private static String browser(Http.RequestHeader requestHeader) {

@@ -7,7 +7,8 @@
 @import org.webjars.play.WebJarsUtil
 @import fragment._
 
-@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config)
+@import helpers.FormErrorsHelper.allErrors
+@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config, request: Http.Request, messagesProvider: MessagesProvider)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 
@@ -42,7 +43,7 @@
         </div>
     </details>
 
-    <div class="govuk-form-group@if(reportForm.allErrors.stream.anyMatch(_.key.contains("issue"))) { govuk-form-group--error}">
+    <div class="govuk-form-group@if(allErrors(reportForm).stream.anyMatch(_.key.contains("issue"))) { govuk-form-group--error}">
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-label">Select the relevant options</legend>
             <div class="govuk-checkboxes" data-module="checkboxes">

@@ -54,7 +54,7 @@ public class DeliusOffenderApi implements OffenderApi {
         private String description;
     }
 
-    private static TypeReference probationAreaListRef = new TypeReference<List<ProbationArea>>(){};
+    private static TypeReference<List<ProbationArea>> probationAreaListRef = new TypeReference<List<ProbationArea>>(){};
 
     @Inject
     public DeliusOffenderApi(Config configuration, WSClient wsClient, AsyncCacheApi cache) {

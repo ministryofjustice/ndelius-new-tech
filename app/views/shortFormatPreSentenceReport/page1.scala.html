@@ -10,7 +10,7 @@
 @import java.time.OffsetDateTime
 @import java.time.Duration
 
-@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config)
+@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config, request: Http.Request, messagesProvider: MessagesProvider)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 
@@ -37,10 +37,10 @@
             </li>
         </ul>
 
-        <p class="govuk-body moj-!-color-white govuk-!-margin-bottom-0">@reportForm("lastUpdated").getValue.map( _ => "This draft report was last saved:").orElse("")
-            <span id="lastUpdated">@reportForm("lastUpdated").getValue.map( dateTime => asDuration(dateTime)).orElse("")</span></p>
+        <p class="govuk-body moj-!-color-white govuk-!-margin-bottom-0">@reportForm("lastUpdated").value().map( _ => "This draft report was last saved:").orElse("")
+            <span id="lastUpdated">@reportForm("lastUpdated").value().map( dateTime => asDuration(dateTime)).orElse("")</span></p>
 
-        @helper.form(action = relative(routes.ShortFormatPreSentenceReportController.wizardPost()), 'id -> "ndForm", 'novalidate -> "") {
+        @helper.form(action = relative(request, routes.ShortFormatPreSentenceReportController.wizardPost), 'id -> "ndForm", 'novalidate -> "") {
             @CSRF.formField
 
             @commonFields(reportForm, encrypter)
@@ -55,10 +55,10 @@
             @page11Fields(reportForm, encrypter)
 
             @pageNumber(
-                reportForm("originalPageNumber").getValue.getOrElse("1").toInt,
-                Some(reportForm("originalPageNumber").getValue.fold(("Start now", None))(_ => ("Continue now", None))),
+                reportForm("originalPageNumber").value().getOrElse("1").toInt,
+                Some(reportForm("originalPageNumber").value().fold(("Start now", None))(_ => ("Continue now", None))),
                 Some("popup-launcher"),
-                reportForm("originalPageNumber").getValue)
+                reportForm("originalPageNumber").value())
             <div class="new-window"><span class="govuk-body-s moj-!-color-white">Launches in a separate window</span></div>
         }
 
@@ -67,7 +67,7 @@
 }
 
 <script type="text/javascript">
-    var isExistingReport = @reportForm("lastUpdated").getValue.map( _ => "true").orElse("false")
+    var isExistingReport = @reportForm("lastUpdated").value().map( _ => "true").orElse("false")
     var $form = document.getElementById('ndForm')
 
     function encodeValue(selector) {
