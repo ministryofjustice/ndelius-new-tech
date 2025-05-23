@@ -6,9 +6,9 @@
 @import helpers.CallHelper.relative
 @import org.webjars.play.WebJarsUtil
 
-@this(implicit webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config, request: Http.Request, messagesProvider: MessagesProvider)
+@this(implicit webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config)
 
-@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String, reviewPage: Int)
+@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String, reviewPage: Int)(implicit request: Http.Request)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 

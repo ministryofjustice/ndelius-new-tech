@@ -1,6 +1,7 @@
 package controllers;
 
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
@@ -15,8 +16,8 @@ public class FeaturesController extends Controller {
         this.template = template;
     }
 
-    public Result index() {
-        return Results.ok(template.render());
+    public Result index(Http.Request request) {
+        return Results.ok(template.render(request));
     }
 
 }

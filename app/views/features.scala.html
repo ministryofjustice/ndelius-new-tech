@@ -3,8 +3,9 @@
 @import com.typesafe.config.Config
 @import helpers.CallHelper.relative
 @import helpers.JsonHelper.stringify
-@this(webJarsUtil: WebJarsUtil)(implicit configuration: Config, request: Http.Request)
+@this(webJarsUtil: WebJarsUtil)(implicit configuration: Config)
 
+@()(implicit request: Http.Request)
 
 <!DOCTYPE html>
 

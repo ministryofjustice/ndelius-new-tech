@@ -17,6 +17,7 @@ import play.Logger;
 import play.data.Form;
 import play.data.validation.ValidationError;
 import play.i18n.Lang;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Controller;
@@ -57,12 +58,14 @@ public abstract class WizardController<T extends WizardData> extends Controller 
     protected final Function<String, String> decrypter;
     protected final HttpExecutionContext ec;
     protected final Config configuration;
-    protected final OffenderApi offenderApi;
+    protected final MessagesApi messagesApi;
+	protected final OffenderApi offenderApi;
 
     protected WizardController(HttpExecutionContext ec,
                                WebJarsUtil webJarsUtil,
                                Config configuration,
                                Environment environment,
+                               MessagesApi messagesApi,
                                EncryptedFormFactory formFactory,
                                Class<T> wizardType,
                                OffenderApi offenderApi) {
@@ -71,7 +74,8 @@ public abstract class WizardController<T extends WizardData> extends Controller 
         this.webJarsUtil = webJarsUtil;
         this.environment = environment;
         this.configuration = configuration;
-        this.offenderApi = offenderApi;
+		this.messagesApi = messagesApi;
+		this.offenderApi = offenderApi;
 
         wizardForm = formFactory.form(wizardType, this::decryptParams);
         encryptedFields = newWizardData().encryptedFields().map(Field::getName).collect(Collectors.toList());
@@ -101,7 +105,7 @@ public abstract class WizardController<T extends WizardData> extends Controller 
 
             } else {
 
-                return badRequest(renderErrorMessage(errorMessage));
+                return badRequest(renderErrorMessage(errorMessage, request));
             }
 
         }, ec.current()).
@@ -114,7 +118,7 @@ public abstract class WizardController<T extends WizardData> extends Controller 
                         return ((InvalidCredentialsException) throwable.getCause()).getErrorResult();
                     }
 
-                    return internalServerError(renderErrorMessage("We are unable to process your request. Please try again later."));
+                    return internalServerError(renderErrorMessage("We are unable to process your request. Please try again later.", request));
                 }).orElse(result), ec.current());
     }
 
@@ -232,12 +236,12 @@ public abstract class WizardController<T extends WizardData> extends Controller 
                 errorMessage.append(form.rawData());
 
                 Logger.error(errorMessage.toString());
-                return renderErrorMessage(errorMessage.toString());
+                return renderErrorMessage(errorMessage.toString(), request);
             });
         };
     }
 
-    protected Content renderErrorMessage(String errorMessage) {
+    protected Content renderErrorMessage(String errorMessage, Http.Request request) {
 
         return Txt.apply(errorMessage);
     }

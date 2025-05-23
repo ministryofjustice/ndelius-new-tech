@@ -16,10 +16,10 @@ import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.Logger;
 import play.data.Form;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.html.shortFormatPreSentenceReport.completed;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -44,6 +44,7 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
                                                   WebJarsUtil webJarsUtil,
                                                   Config configuration,
                                                   Environment environment,
+                                                  MessagesApi messagesApi,
                                                   EncryptedFormFactory formFactory,
                                                   PdfGenerator pdfGenerator,
                                                   DocumentStore documentStore,
@@ -52,7 +53,7 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
                                                   views.html.helper.error errorTemplate,
                                                   OffenderApi offenderApi) {
 
-        super(ec, webJarsUtil, configuration, environment, formFactory, ShortFormatPreSentenceReportData.class, pdfGenerator, documentStore, offenderApi);
+        super(ec, webJarsUtil, configuration, environment, messagesApi, formFactory, ShortFormatPreSentenceReportData.class, pdfGenerator, documentStore, offenderApi);
         this.cancelledTemplate = cancelledTemplate;
         this.completedTemplate = completedTemplate;
 		this.errorTemplate = errorTemplate;
@@ -225,7 +226,7 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
 
         val boundForm = wizardForm.bindFromRequest(request);
 
-        return cancelledTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm));
+        return cancelledTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm), request);
     }
 
     @Override
@@ -233,7 +234,7 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
 
         val boundForm = wizardForm.bindFromRequest(request);
 
-        return completedTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm));
+        return completedTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm), request);
     }
 
     private Integer reviewPageNumberFor(Form<ShortFormatPreSentenceReportData> boundForm) {
@@ -241,9 +242,9 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
     }
 
     @Override
-    protected Content renderErrorMessage(String errorMessage) {
+    protected Content renderErrorMessage(String errorMessage, Http.Request request) {
 
-        return errorTemplate.render("Error - Short Format Pre Sentence Report", errorMessage);
+        return errorTemplate.render("Error - Short Format Pre Sentence Report", errorMessage, request);
     }
 
     protected List<String> paramsToBeLogged() {

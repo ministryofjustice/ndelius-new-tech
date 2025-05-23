@@ -18,6 +18,7 @@ import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.Logger;
 import play.i18n.Lang;
+import play.i18n.MessagesApi;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.typedmap.TypedKey;
@@ -52,13 +53,14 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
                                               WebJarsUtil webJarsUtil,
                                               Config configuration,
                                               Environment environment,
+                                              MessagesApi messagesApi,
                                               EncryptedFormFactory formFactory,
                                               Class<T> wizardType,
                                               PdfGenerator pdfGenerator,
                                               DocumentStore documentStore,
                                               OffenderApi offenderApi) {
 
-        super(ec, webJarsUtil, configuration, environment, formFactory, wizardType, offenderApi);
+        super(ec, webJarsUtil, configuration, environment, messagesApi, formFactory, wizardType, offenderApi);
 
         this.pdfGenerator = pdfGenerator;
         this.documentStore = documentStore;

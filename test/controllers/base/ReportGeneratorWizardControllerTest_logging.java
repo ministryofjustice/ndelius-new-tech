@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.webjars.play.WebJarsUtil;
 import play.Environment;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -34,6 +35,8 @@ public class ReportGeneratorWizardControllerTest_logging {
     @Mock
     Environment environment;
     @Mock
+    MessagesApi messagesApi;
+    @Mock
     EncryptedFormFactory formFactory;
     @Mock
     PdfGenerator pdfGenerator;
@@ -45,7 +48,7 @@ public class ReportGeneratorWizardControllerTest_logging {
 
     @Before
     public void before() {
-        controller = new TestController(ec, webJarsUtil, configuration, environment, formFactory, TestData.class, pdfGenerator, documentStore, offenderApi);
+        controller = new TestController(ec, webJarsUtil, configuration, environment, messagesApi, formFactory, TestData.class, pdfGenerator, documentStore, offenderApi);
     }
 
     @Test
@@ -82,8 +85,8 @@ public class ReportGeneratorWizardControllerTest_logging {
 
     class TestController extends ReportGeneratorWizardController<TestData> {
 
-        TestController(HttpExecutionContext ec, WebJarsUtil webJarsUtil, Config configuration, Environment environment, EncryptedFormFactory formFactory, Class<TestData> wizardType, PdfGenerator pdfGenerator, DocumentStore documentStore, OffenderApi offenderApi) {
-            super(ec, webJarsUtil, configuration, environment, formFactory, wizardType, pdfGenerator, documentStore, offenderApi);
+        TestController(HttpExecutionContext ec, WebJarsUtil webJarsUtil, Config configuration, Environment environment, MessagesApi messagesApi, EncryptedFormFactory formFactory, Class<TestData> wizardType, PdfGenerator pdfGenerator, DocumentStore documentStore, OffenderApi offenderApi) {
+            super(ec, webJarsUtil, configuration, environment, messagesApi, formFactory, wizardType, pdfGenerator, documentStore, offenderApi);
         }
 
         @Override

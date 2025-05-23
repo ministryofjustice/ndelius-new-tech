@@ -20,10 +20,10 @@ import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.Logger;
 import play.data.Form;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import views.html.oralReport.completed;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -48,6 +48,7 @@ public class OralReportController extends ReportGeneratorWizardController<OralRe
                                 WebJarsUtil webJarsUtil,
                                 Config configuration,
                                 Environment environment,
+                                MessagesApi messagesApi,
                                 EncryptedFormFactory formFactory,
                                 PdfGenerator pdfGenerator,
                                 DocumentStore documentStore,
@@ -56,7 +57,7 @@ public class OralReportController extends ReportGeneratorWizardController<OralRe
                                 views.html.helper.error errorTemplate,
                                 OffenderApi offenderApi) {
 
-        super(ec, webJarsUtil, configuration, environment, formFactory, OralReportData.class, pdfGenerator, documentStore, offenderApi);
+        super(ec, webJarsUtil, configuration, environment, messagesApi, formFactory, OralReportData.class, pdfGenerator, documentStore, offenderApi);
         this.cancelledTemplate = cancelledTemplate;
         this.completedTemplate = completedTemplate;
 		this.errorTemplate = errorTemplate;
@@ -226,13 +227,13 @@ public class OralReportController extends ReportGeneratorWizardController<OralRe
     @Override
     protected Content renderCancelledView(Http.Request request) {
         val boundForm = wizardForm.bindFromRequest(request);
-        return cancelledTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm));
+        return cancelledTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm), request);
     }
 
     @Override
     protected Content renderCompletedView(Http.Request request, Byte[] bytes) {
         val boundForm = wizardForm.bindFromRequest(request);
-        return completedTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm));
+        return completedTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm), request);
     }
 
     private Integer reviewPageNumberFor(Form<OralReportData> boundForm) {
@@ -240,8 +241,8 @@ public class OralReportController extends ReportGeneratorWizardController<OralRe
     }
 
     @Override
-    protected Content renderErrorMessage(String errorMessage) {
-        return errorTemplate.render("Error - Oral Pre-Sentence Report", errorMessage);
+    protected Content renderErrorMessage(String errorMessage, Http.Request request) {
+        return errorTemplate.render("Error - Oral Pre-Sentence Report", errorMessage, request);
     }
 
     protected List<String> paramsToBeLogged() {
