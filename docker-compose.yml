@@ -11,7 +11,7 @@ services:
       - 9300:9300
 
   mongo:
-    image: mongo
+    image: mongo:4.4
     container_name: mongodb
     command: --serviceExecutor adaptive
     ports:

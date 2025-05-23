@@ -17,7 +17,7 @@ POST    /report/oralReport                          controllers.OralReportContro
 POST    /report/oralReport/save                     controllers.OralReportController.reportPost(request: Request)
 GET     /report/oralReport/get                      controllers.OralReportController.getPdf(documentId: String, onBehalfOfUser: String)
 
-GET     /features                                    controllers.FeaturesController.index()
+GET     /features                                    controllers.FeaturesController.index(request: Request)
 + nocsrf
 POST    /spellcheck                                 controllers.TinyMCESpellCheckerController.findSpellings(request: Request)
 
