@@ -136,7 +136,7 @@ Run all tests:
 - sbt clean test
 
 Run frontend tests:
-- sbt mocha
+- npm test
 
 ### Circle CI build
 

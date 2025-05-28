@@ -1,15 +1,13 @@
-import { promisifyXMLHttpRequest } from '../utilities/xhrPromisify'
-import { autoSaveProgress } from './saveProgressHelper'
-import { startSaveIcon } from '../components/saveIcon'
-import { formWithZeroJumpNumber } from '../utilities/formWithZeroJumpNumber'
+import {promisifyXMLHttpRequest} from '../utilities/xhrPromisify'
+import {autoSaveProgress} from './saveProgressHelper'
+import {startSaveIcon} from '../components/saveIcon'
+import {formWithZeroJumpNumber} from '../utilities/formWithZeroJumpNumber'
 
 jest.mock('../components/saveIcon')
 
 jest.mock('../utilities/xhrPromisify', () => ({
   promisifyXMLHttpRequest: jest.fn().mockImplementation(() => {
-    return new Promise((resolve) => {
-      process.nextTick(() => resolve())
-    })
+    return new Promise(resolve => resolve())
   })
 }))
 
