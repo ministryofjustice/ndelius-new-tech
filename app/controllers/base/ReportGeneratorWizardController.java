@@ -21,7 +21,6 @@ import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
-import play.libs.typedmap.TypedKey;
 import play.libs.typedmap.TypedMap;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -30,7 +29,13 @@ import play.twirl.api.Content;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -135,7 +140,7 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
                     errorReporter);
 
                 if (invalidRequest.isPresent()) {
-                    return CompletableFuture.supplyAsync(() -> {
+                    return CompletableFuture.<String>supplyAsync(() -> {
                         throw new InvalidCredentialsException(invalidRequest.get());
                     });
                 }
@@ -145,27 +150,27 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
 				return offenderApi.logon(username)
 					.thenApplyAsync(bearerToken -> {
 						Logger.info("AUDIT:{}: ReportGeneratorWizardController: Successful logon for user {}", principal(bearerToken), username);
-                        request.addAttr(TypedKey.create(OFFENDER_API_BEARER_TOKEN), bearerToken);
 						return bearerToken;
 					}, ec.current());
             }).orElse(CompletableFuture.completedFuture("ignored"));
 
         return possibleBearerTokenRefresh
-                .thenCompose(bearerToken -> super.initialParams(request))
-                .thenCompose(params ->
-            loadExistingDocument(request, params).orElseGet(() -> createNewDocument(request, params))).thenApply(params -> {
-
-            if (stopAtInterstitial) {
-                params.put("originalPageNumber", currentPageButNotInterstitialOrCompletion(params.get("pageNumber")));
-                params.put("pageNumber", "1");
-            }
-            if (continueFromInterstitial) {
-                params.put("pageNumber", currentPageButNotInterstitialOrCompletion(params.get("pageNumber")));
-                params.put("jumpNumber", params.get("pageNumber"));
-            }
-
-            return params;
-        });
+                .thenCompose(bearerToken -> super.initialParams(request).thenApply(params -> {
+                    params.put(OFFENDER_API_BEARER_TOKEN, bearerToken);
+                    return params;
+                }))
+                .thenCompose(params -> loadExistingDocument(request, params).orElseGet(() -> createNewDocument(request, params)))
+                .thenApply(params -> {
+                    if (stopAtInterstitial) {
+                        params.put("originalPageNumber", currentPageButNotInterstitialOrCompletion(params.get("pageNumber")));
+                        params.put("pageNumber", "1");
+                    }
+                    if (continueFromInterstitial) {
+                        params.put("pageNumber", currentPageButNotInterstitialOrCompletion(params.get("pageNumber")));
+                        params.put("jumpNumber", params.get("pageNumber"));
+                    }
+                    return params;
+                });
     }
 
     protected abstract Map<String, String> storeOffenderDetails(Map<String, String> params, Offender offender);
@@ -255,7 +260,7 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
         params.put("startDate", new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
 
         val crn = params.get("crn");
-        return offenderApi.getOffenderByCrn(getToken(request), crn)
+        return offenderApi.getOffenderByCrn(getToken(params), crn)
             .thenApply(offender -> storeReportFilename(params, offender))
             .thenApply(offender -> storeOffenderDetails(params, offender))
             .thenCompose(updatedParams -> generateAndStoreReport(wizardForm.bind(Lang.defaultLang(), TypedMap.empty(), updatedParams).value().orElseGet(this::newWizardData)).
@@ -288,7 +293,7 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
                 return info;
             })).
             map(originalInfo -> originalInfo.thenComposeAsync(info ->
-                offenderApi.getOffenderByCrn(getToken(request), info.get("crn"))
+                offenderApi.getOffenderByCrn(getToken(params), info.get("crn"))
                     .thenApply(offender -> storeOffenderDetails(info, offender)), ec.current())).
             map(originalInfo -> originalInfo.thenApply(info -> {
                 info.put("onBehalfOfUser", params.get("onBehalfOfUser"));
@@ -388,7 +393,7 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
         return generateReport(data).thenCompose(result -> storeReport(data, result));
     }
 
-    protected String getToken(Http.Request request) {
-        return request.attrs().get(TypedKey.create(OFFENDER_API_BEARER_TOKEN));
+    protected String getToken(Map<String, String> params) {
+        return params.get(OFFENDER_API_BEARER_TOKEN);
     }
 }

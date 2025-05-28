@@ -15,14 +15,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SpellcheckService {
-
-    private BritishEnglish britishEnglish;
     private final static Logger LOGGER = LoggerFactory.getLogger(SpellcheckService.class);
 
     @Inject
-    public SpellcheckService() {
-        britishEnglish = new BritishEnglish();
-    }
+    public SpellcheckService() {}
 
     public String getSpellCheckSuggestions(String textToSpellCheck) {
         StringBuilder spellingMistakes = new StringBuilder();
@@ -52,7 +48,7 @@ public class SpellcheckService {
     }
 
     private JLanguageTool createLanguageTool() {
-        JLanguageTool languageTool = new JLanguageTool(britishEnglish);
+        JLanguageTool languageTool = new JLanguageTool(BritishEnglish.getInstance());
         disableGrammarChecking(languageTool);
         return languageTool;
     }

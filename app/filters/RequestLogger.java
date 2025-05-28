@@ -1,6 +1,5 @@
 package filters;
 
-import com.github.coveo.ua_parser.Parser;
 import com.google.common.collect.ImmutableList;
 import helpers.JwtHelper;
 import lombok.val;
@@ -8,6 +7,7 @@ import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import scala.collection.JavaConverters;
+import ua_parser.Parser;
 
 import java.util.List;
 import java.util.Optional;

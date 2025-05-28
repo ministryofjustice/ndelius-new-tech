@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DeliusOffenderApiTest {
     @Test
     public void buildsAValidQueryParamString() {
-        DeliusOffenderApi deliusOffenderApi = new DeliusOffenderApi(ConfigFactory.load(), null, null);
+        DeliusOffenderApi deliusOffenderApi = new DeliusOffenderApi(ConfigFactory.load(), null);
         Map<String, String> params = new HashMap<>();
         params.put("surname", "smith");
         assertThat(deliusOffenderApi.queryParamsFrom(params)).isEqualTo("?surname=smith");

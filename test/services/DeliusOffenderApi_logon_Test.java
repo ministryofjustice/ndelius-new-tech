@@ -7,8 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-import play.cache.AsyncCacheApi;
+import org.mockito.junit.MockitoJUnitRunner;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -19,12 +18,10 @@ import java.util.concurrent.CompletionStage;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class DeliusOffenderApi_logon_Test {
 
     private OffenderApi offenderApi;
@@ -38,13 +35,9 @@ public class DeliusOffenderApi_logon_Test {
     @Mock
     private WSResponse wsResponse;
 
-    @Mock
-    private AsyncCacheApi cache;
-
-
     @Before
     public void setup() {
-        offenderApi = new DeliusOffenderApi(ConfigFactory.load(), wsClient, cache);
+        offenderApi = new DeliusOffenderApi(ConfigFactory.load(), wsClient);
         when(wsClient.url(any())).thenReturn(wsRequest);
         when(wsRequest.post(anyString())).thenReturn(CompletableFuture.completedFuture(wsResponse));
         when(wsResponse.getStatus()).thenReturn(200);

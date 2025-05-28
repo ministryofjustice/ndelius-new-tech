@@ -1,8 +1,8 @@
 package views.pages.shortformatpresentencereport;
 
 import helpers.Encryption;
+import io.fluentlenium.core.FluentPage;
 import lombok.val;
-import org.fluentlenium.core.FluentPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import play.test.TestBrowser;

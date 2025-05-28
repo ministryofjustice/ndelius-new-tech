@@ -8,7 +8,11 @@ import controllers.base.ReportGeneratorWizardController;
 import data.ShortFormatPreSentenceReportData;
 import interfaces.DocumentStore;
 import interfaces.OffenderApi;
-import interfaces.OffenderApi.*;
+import interfaces.OffenderApi.Court;
+import interfaces.OffenderApi.CourtAppearances;
+import interfaces.OffenderApi.CourtReport;
+import interfaces.OffenderApi.Offences;
+import interfaces.OffenderApi.Offender;
 import interfaces.PdfGenerator;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -129,9 +133,10 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
             return migrateLegacyReport(params);
         }).thenComposeAsync(params -> {
             val crn = params.get("crn");
-            val courtAppearancesFuture = offenderApi.getCourtAppearancesByCrn(getToken(request), crn).toCompletableFuture();
-            val offencesFuture =  offenderApi.getOffencesByCrn(getToken(request), crn).toCompletableFuture();
-            val courtReportFuture = offenderApi.getCourtReportByCrnAndCourtReportId(getToken(request), crn, params.get("entityId")).toCompletableFuture();
+            val token = getToken(params);
+            val courtAppearancesFuture = offenderApi.getCourtAppearancesByCrn(token, crn).toCompletableFuture();
+            val offencesFuture =  offenderApi.getOffencesByCrn(token, crn).toCompletableFuture();
+            val courtReportFuture = offenderApi.getCourtReportByCrnAndCourtReportId(token, crn, params.get("entityId")).toCompletableFuture();
 
             return CompletableFuture.allOf(courtAppearancesFuture, offencesFuture, courtReportFuture)
                     .thenApplyAsync(notUsed ->

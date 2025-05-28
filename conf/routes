@@ -5,7 +5,6 @@
 GET     /healthcheck                                controllers.UtilityController.healthcheck(detail: Boolean ?= false)
 + nocsrf
 POST    /api/logon                                  controllers.UtilityController.apiLogon(request: Request)
-GET     /api/*url                                   controllers.UtilityController.apiCall(request: Request, url)
 
 GET     /report/shortFormatPreSentenceReport        controllers.ShortFormatPreSentenceReportController.wizardGet(request: Request)
 POST    /report/shortFormatPreSentenceReport        controllers.ShortFormatPreSentenceReportController.wizardPost(request: Request)

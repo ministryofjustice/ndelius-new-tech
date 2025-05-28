@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.inject.Bindings.bind;

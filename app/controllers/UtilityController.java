@@ -3,7 +3,10 @@ package controllers;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import helpers.JsonHelper;
-import interfaces.*;
+import interfaces.DocumentStore;
+import interfaces.HealthCheckResult;
+import interfaces.OffenderApi;
+import interfaces.PdfGenerator;
 import lombok.Value;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
@@ -53,9 +56,6 @@ public class UtilityController extends Controller {
     public UtilityController(PdfGenerator pdfGenerator,
                              DocumentStore documentStore,
                              OffenderApi offenderApi,
-                             PrisonerApi prisonerApi,
-                             PrisonerCategoryApi prisonerCategoryApi,
-                             PrisonerApiToken prisonerApiToken,
                              Config configuration,
                              MessagesApi messagesApi) {
         this.offenderApi = offenderApi; // Used by searchDb and searchLdap, so stored directly for later, others are closed over below
@@ -64,9 +64,6 @@ public class UtilityController extends Controller {
                 put(definition("pdf-generator", true), () -> pdfGenerator.isHealthy().toCompletableFuture()).
                 put(definition("document-store", true), () -> documentStore.isHealthy().toCompletableFuture()).
                 put(definition("offender-api", true), () -> offenderApi.isHealthy().toCompletableFuture()).
-                put(definition("custody-api", true), () -> prisonerApi.isHealthy().toCompletableFuture()).
-                put(definition("elite2-api", true), () -> prisonerCategoryApi.isHealthy().toCompletableFuture()).
-                put(definition("nomis-authentication-api", true), () -> prisonerApiToken.isHealthy().toCompletableFuture()).
                 build();
 
         this.configuration = configuration;
@@ -136,11 +133,6 @@ public class UtilityController extends Controller {
         return supplied.equals(required) ?
                 offenderApi.logon(request.body().asText()).thenApply(Results::ok) :
                 CompletableFuture.supplyAsync(Results::unauthorized);
-    }
-
-    public CompletionStage<Result> apiCall(Http.Request request, String url) {
-
-        return offenderApi.callOffenderApi(request.header(AUTHORIZATION).orElse(""), url).thenApply(Results::ok);
     }
 
     private Map<String, Object> runtimeInfo() {

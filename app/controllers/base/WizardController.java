@@ -14,6 +14,7 @@ import org.joda.time.DateTime;
 import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.Logger;
+import play.api.i18n.MessagesProvider;
 import play.data.Form;
 import play.data.validation.ValidationError;
 import play.i18n.Lang;
@@ -31,7 +32,11 @@ import scala.compat.java8.functionConverterImpls.FromJavaFunction;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -100,8 +105,10 @@ public abstract class WizardController<T extends WizardData> extends Controller 
                 val thisPage = boundForm.value().map(WizardData::getPageNumber).orElse(1);
                 val pageStatuses = getPageStatuses(boundForm.value(), thisPage, null);
 
-                return ok(renderPage(request, thisPage, boundForm, pageStatuses))
-                        .addingToSession(request, OFFENDER_API_BEARER_TOKEN, params.get(OFFENDER_API_BEARER_TOKEN));
+                var result = ok(renderPage(request, thisPage, boundForm, pageStatuses));
+                if (params.containsKey(OFFENDER_API_BEARER_TOKEN)) {
+                    return result.addingToSession(request, OFFENDER_API_BEARER_TOKEN, params.get(OFFENDER_API_BEARER_TOKEN));
+                } else return result;
 
             } else {
 
@@ -219,15 +226,13 @@ public abstract class WizardController<T extends WizardData> extends Controller 
     }
 
     protected BiFunction<Form<T>, Map<Integer, PageStatus>, Content> formRenderer(Http.Request request, String viewName) {
-
-        val render = getRenderMethod(viewName, Form.class, Function1.class, Map.class, WebJarsUtil.class, Environment.class, Config.class);
+        val render = getRenderMethod(viewName, Form.class, Function1.class, Map.class, WebJarsUtil.class, Environment.class, Config.class, Http.Request.class, MessagesProvider.class);
 
         return (form, pageStatuses) -> {
 
             renderingData(request, form.value().orElseGet(this::newWizardData));
 
-            return render.map(method -> invokeContentMethod(method, form, viewEncrypter, pageStatuses, webJarsUtil, environment, configuration)).orElseGet(() -> {
-
+            return render.map(method -> invokeContentMethod(method, form, viewEncrypter, pageStatuses, webJarsUtil, environment, configuration, request, messagesApi.preferred(request))).orElseGet(() -> {
                 val errorMessage = new StringBuilder();
 
                 errorMessage.append("Form Renderer Error\n");

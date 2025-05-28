@@ -1,15 +1,13 @@
 defaults: &defaults
   working_directory: ~/ndelius-new-tech
   docker:
-    # dangerous pinning to old version with node v12.18.1 - from previous version of circleci/openjdk:8-node-browsers
-    # fixes issue with compatible issue with v12.18.3 and graceful-fs webjar
-    - image: circleci/openjdk@sha256:0ab7db4ecdc5966baaa44f64075725c22a53dc63922492c26cabd98b7c961ae0
+    - image: cimg/openjdk:21.0-browsers
 
 version: 2.1
 
 orbs:
   mem: circleci/rememborb@0.0.1
-  hmpps: ministryofjustice/hmpps@7
+  hmpps: ministryofjustice/hmpps@11
 
 general:
   branches:
@@ -25,9 +23,8 @@ jobs:
             - v2-ndelius-new-tech-{{ checksum "build.sbt" }}
             - v2-ndelius-new-tech-
       - run:
-          name: yarn install
-          command: |
-            yarn install --silent
+          name: npm install
+          command: npm ci
       - run:
           name: Compile
           command: |
@@ -48,57 +45,14 @@ jobs:
             - v2-ndelius-new-tech-
       - run:
           name: Unit tests (Jest)
-          command: |
-            yarn jest /app/assets/javascripts/app
+          command: npm test
       - run:
           name: Unit tests
           command: |
             export _JAVA_OPTIONS="-Xms512m -Xmx1224m"
             export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
-            export CUCUMBER_OPTIONS="--tags @None"
+            export CUCUMBER_FILTER_TAGS="@None"
             sbt test < /dev/null
-      - store_test_results:
-          path: ./target/test-reports/
-      - store_artifacts:
-          path: ./target/test-reports/
-          destination: reports
-  bddOffenderSummary:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ~/ndelius-new-tech
-      - restore_cache:
-          keys:
-            - v2-ndelius-new-tech-{{ checksum "build.sbt" }}
-            - v2-ndelius-new-tech-
-      - run:
-          name: BDD - Offender Summary
-          command: |
-            export _JAVA_OPTIONS="-Xms512m -Xmx1224m"
-            export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
-            export CUCUMBER_OPTIONS="--tags @OffenderSummary"
-            sbt "test-only bdd.RunCucumber" < /dev/null
-      - store_test_results:
-          path: ./target/test-reports/
-      - store_artifacts:
-          path: ./target/test-reports/
-          destination: reports
-  bddNationalSearch:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ~/ndelius-new-tech
-      - restore_cache:
-          keys:
-            - v2-ndelius-new-tech-{{ checksum "build.sbt" }}
-            - v2-ndelius-new-tech-
-      - run:
-          name: BDD - National Search
-          command: |
-            export _JAVA_OPTIONS="-Xms512m -Xmx1224m"
-            export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
-            export CUCUMBER_OPTIONS="--tags @Search"
-            sbt "test-only bdd.RunCucumber" < /dev/null
       - store_test_results:
           path: ./target/test-reports/
       - store_artifacts:
@@ -118,32 +72,8 @@ jobs:
           command: |
             export _JAVA_OPTIONS="-Xms512m -Xmx1224m"
             export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
-            export CUCUMBER_OPTIONS="--tags @SFR"
-            sbt "test-only bdd.RunCucumber" < /dev/null
-      - store_test_results:
-          path: ./target/test-reports/
-      - store_artifacts:
-          path: ./target/test-reports/
-          destination: reports
-  bddParom1:
-    <<: *defaults
-    parallelism: 3
-    steps:
-      - attach_workspace:
-          at: ~/ndelius-new-tech
-      - restore_cache:
-          keys:
-            - v2-ndelius-new-tech-{{ checksum "build.sbt" }}
-            - v2-ndelius-new-tech-
-      - run:
-          name: BDD - Parom1
-          command: |
-            export TESTFILES=$(circleci tests glob "features/**/paroleparom1report/*.feature" | circleci tests split --split-by=timings --timings-type=filename)
-            export _JAVA_OPTIONS="-Xms512m -Xmx1224m"
-            export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
-            export CUCUMBER_OPTIONS="--tags @Parom1 $TESTFILES"
-            echo $CUCUMBER_OPTIONS
-            sbt "test-only bdd.RunCucumber" < /dev/null
+            export CUCUMBER_FILTER_TAGS="@SFR"
+            sbt "testOnly bdd.RunCucumber" < /dev/null
       - store_test_results:
           path: ./target/test-reports/
       - store_artifacts:
@@ -163,8 +93,8 @@ jobs:
           command: |
             export _JAVA_OPTIONS="-Xms512m -Xmx1224m"
             export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
-            export CUCUMBER_OPTIONS="--tags ~@Parom1 --tags ~@OffenderSummary --tags ~@SFR"
-            sbt "test-only bdd.RunCucumber" < /dev/null
+            export CUCUMBER_FILTER_TAGS="not @SFR"
+            sbt "testOnly bdd.RunCucumber" < /dev/null
       - store_test_results:
           path: ./target/test-reports/
       - store_artifacts:
@@ -196,8 +126,8 @@ jobs:
           name: Save Fat Jar
           command: |
             mkdir -p ./target/artifacts
-            rm target/scala-2.12/ndelius2_*-web-assets.jar
-            cp target/scala-2.12/*.jar ./target/artifacts/
+            rm target/scala-2.13/ndelius2_*-web-assets.jar
+            cp target/scala-2.13/*.jar ./target/artifacts/
             cp ./target/artifacts/ndelius2*.jar ./target/artifacts/ndelius2.jar
       - persist_to_workspace:
           root: ./target/artifacts/
@@ -241,16 +171,7 @@ workflows:
       - bddOther:
           requires:
             - build
-      - bddParom1:
-          requires:
-            - build
       - bddSFR:
-          requires:
-            - build
-      - bddOffenderSummary:
-          requires:
-            - build
-      - bddNationalSearch:
           requires:
             - build
       - unitTests:

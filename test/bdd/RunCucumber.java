@@ -1,11 +1,10 @@
 package bdd;
 
-import cucumber.api.CucumberOptions;
-import cucumber.api.junit.Cucumber;
-import org.junit.Ignore;
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features={"features/bdd"}, format = {"pretty"})
+@CucumberOptions(features={"features/bdd"}, plugin = {"pretty"})
 public class RunCucumber {
 }

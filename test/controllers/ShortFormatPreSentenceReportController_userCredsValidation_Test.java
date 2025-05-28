@@ -26,8 +26,6 @@ import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static play.inject.Bindings.bind;
 import static play.mvc.Http.RequestBuilder;
@@ -105,7 +103,7 @@ public class ShortFormatPreSentenceReportController_userCredsValidation_Test ext
 
         Http.RequestBuilder request = buildReportRequest(0);
         val result = route(app, request);
-        route(app, request.session("offenderApiBearerToken", result.session().get("offenderApiBearerToken")));
+        route(app, request.session("offenderApiBearerToken", result.session().get("offenderApiBearerToken").get()));
 
         verify(offenderApi, times(2)).logon(any());
     }

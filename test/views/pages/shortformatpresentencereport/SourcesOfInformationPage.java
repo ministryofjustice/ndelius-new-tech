@@ -5,9 +5,7 @@ import play.test.TestBrowser;
 import javax.inject.Inject;
 import java.util.List;
 
-import static org.openqa.selenium.By.cssSelector;
-import static org.openqa.selenium.By.id;
-import static org.openqa.selenium.By.xpath;
+import static org.openqa.selenium.By.*;
 
 public class SourcesOfInformationPage extends ShortFormatPreSentencePopupReportPage {
     private final OffenderDetailsPage offenderDetailsPage;
@@ -35,10 +33,10 @@ public class SourcesOfInformationPage extends ShortFormatPreSentencePopupReportP
 
     public boolean isTicked(String informationSourceLabel) {
         final String checkboxId = checkBoxIdFromLabel(informationSourceLabel);
-        return $(id(checkboxId)).attribute("checked") != null;    }
+        return $(id(checkboxId)).first().attribute("checked") != null;    }
 
     public String otherInformationDetails() {
-        return $(id("otherInformationDetails")).text();
+        return $(id("otherInformationDetails")).first().text();
     }
 
     public void attemptNext() {
@@ -56,6 +54,6 @@ public class SourcesOfInformationPage extends ShortFormatPreSentencePopupReportP
     }
 
     private String checkBoxIdFromLabel(String optionLabel) {
-        return $(xpath(String.format("//label[span[contains(.,'%s')]]", optionLabel))).attribute("for");
+        return $(xpath(String.format("//label[span[contains(.,'%s')]]", optionLabel))).first().attribute("for");
     }
 }

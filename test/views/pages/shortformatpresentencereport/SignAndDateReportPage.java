@@ -43,7 +43,7 @@ public class SignAndDateReportPage extends ShortFormatPreSentencePopupReportPage
     }
 
     public boolean isStartDateFieldReadonly() {
-        return $(id("startDate")).attribute("type").equals("hidden");
+        return $(id("startDate")).first().attribute("type").equals("hidden");
     }
 
     public boolean hasReportAuthorField() {
@@ -51,10 +51,10 @@ public class SignAndDateReportPage extends ShortFormatPreSentencePopupReportPage
     }
 
     public String getStartDate() {
-        return $(id("value_startDate")).text();
+        return $(id("value_startDate")).first().text();
     }
 
     public String getNextButtonText() {
-        return $(id("nextButton")).text();
+        return $(id("nextButton")).first().text();
     }
 }

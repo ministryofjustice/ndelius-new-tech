@@ -132,9 +132,10 @@ public class OralReportController extends ReportGeneratorWizardController<OralRe
             return migrateLegacyReport(params);
         }).thenComposeAsync(params -> {
             val crn = params.get("crn");
-            val courtAppearancesFuture = offenderApi.getCourtAppearancesByCrn(getToken(request), crn).toCompletableFuture();
-            val offencesFuture =  offenderApi.getOffencesByCrn(getToken(request), crn).toCompletableFuture();
-            val courtReportFuture = offenderApi.getCourtReportByCrnAndCourtReportId(getToken(request), crn, params.get("entityId")).toCompletableFuture();
+            val token = getToken(params);
+            val courtAppearancesFuture = offenderApi.getCourtAppearancesByCrn(token, crn).toCompletableFuture();
+            val offencesFuture =  offenderApi.getOffencesByCrn(token, crn).toCompletableFuture();
+            val courtReportFuture = offenderApi.getCourtReportByCrnAndCourtReportId(token, crn, params.get("entityId")).toCompletableFuture();
 
             return CompletableFuture.allOf(courtAppearancesFuture, offencesFuture, courtReportFuture)
                     .thenApplyAsync(notUsed ->
