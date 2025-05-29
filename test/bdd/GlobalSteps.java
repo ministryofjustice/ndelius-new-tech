@@ -2,6 +2,7 @@ package bdd;
 
 import bdd.wiremock.AlfrescoStoreMock;
 import bdd.wiremock.OffenderApiMock;
+import io.cucumber.guice.ScenarioScoped;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@ScenarioScoped
 public class GlobalSteps {
     @Inject
     private ReportPage page;
@@ -149,7 +151,9 @@ public class GlobalSteps {
     }
 
     private Map<String, String> toNameValues(Map<String, String> labelTextMap) {
-        return labelTextMap.keySet().stream().map(label -> new SimpleEntry<>(nameFromLabel(label), labelTextMap.get(label))).collect(toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+        return labelTextMap.keySet().stream()
+                .map(label -> new SimpleEntry<>(nameFromLabel(label), Optional.ofNullable(labelTextMap.get(label)).orElse("")))
+                .collect(toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     }
 
     private String nameFromLabel(String label) {

@@ -29,7 +29,7 @@ public class GlobalHooks extends WithChromeBrowser {
     private OffenderApiMock offenderApiMock;
 
     @Before
-    public void before() {
+    public void before() throws InterruptedException {
         startServer();
         pdfGeneratorMock.start().stubDefaults();
         offenderApiMock.start().stubDefaults();
@@ -39,7 +39,7 @@ public class GlobalHooks extends WithChromeBrowser {
     }
 
     @After
-    public void after() {
+    public void after() throws InterruptedException {
         pdfGeneratorMock.stop();
         alfrescoStoreMock.stop();
         offenderApiMock.stop();
@@ -49,6 +49,7 @@ public class GlobalHooks extends WithChromeBrowser {
 
     @Override
     protected TestBrowser provideBrowser(int port) {
+        theTestBrowser = super.provideBrowser(port);
         theTestBrowser.getConfiguration().setBaseUrl("http://localhost:" + port);
         return theTestBrowser;
     }

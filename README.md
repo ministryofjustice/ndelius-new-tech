@@ -71,7 +71,7 @@ npm i
 Pass the required environment variables and start the application:
 
 ```
-OFFENDER_API_PROVIDER=stub ELASTIC_SEARCH_SCHEME=http STORE_PROVIDER=mongo PARAMS_USER_TOKEN_VALID_DURATION=10000d PRISONER_API_PROVIDER=stub sbt -Dlogback.application.level=DEBUG run
+OFFENDER_API_PROVIDER=stub ELASTIC_SEARCH_SCHEME=http STORE_PROVIDER=mongo PARAMS_USER_TOKEN_VALID_DURATION=10000d sbt -Dlogback.application.level=DEBUG run
 ```
 
 ### nDelius Wrapper

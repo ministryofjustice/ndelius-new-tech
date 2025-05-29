@@ -7,7 +7,7 @@ textarea:not(.moj-textarea--classic) {
 }
 
 .moj-rich-text-editor {
-  @include govuk-focusable
+  @include govuk-focusable;
 
   &.moj-textarea--prefilled {
     border: 2px solid $govuk-text-colour;

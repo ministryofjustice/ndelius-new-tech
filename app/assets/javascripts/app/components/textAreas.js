@@ -5,11 +5,12 @@ import 'tinymce/plugins/help'
 import 'tinymce/plugins/lists'
 import 'tinymce/plugins/paste'
 import 'tinymce/plugins/spellchecker'
+import 'tinymce/icons/default/icons'
 
-import { autoSaveProgress } from '../helpers/saveProgressHelper'
-import { debounce } from '../utilities/debounce'
-import { nodeListForEach } from '../utilities/nodeListForEach'
-import { trackEvent } from '../../helpers/analyticsHelper'
+import {autoSaveProgress} from '../helpers/saveProgressHelper'
+import {debounce} from '../utilities/debounce'
+import {nodeListForEach} from '../utilities/nodeListForEach'
+import {trackEvent} from '../../helpers/analyticsHelper'
 
 /**
  *

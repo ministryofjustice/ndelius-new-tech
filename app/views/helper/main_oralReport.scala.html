@@ -1,7 +1,7 @@
-@import helper._
-@import org.webjars.play.WebJarsUtil
 @import com.typesafe.config.Config
+@import helper._
 @import helpers.CallHelper.relative
+@import org.webjars.play.WebJarsUtil
 
 @(title: String, banner: Boolean = true, hashName: Option[Any] = None)(content: Html)(implicit webJarsUtil: WebJarsUtil, configuration: Config, request: Http.Request)
 
@@ -18,10 +18,6 @@
     <link rel="shortcut icon" type="image/x-icon" href='@relative(request, routes.Assets.versioned("images/favicon.ico"))' />
 
     @googleAnalyticsHead(hashName)
-
-    <script type="text/javascript" src='@relative(request, routes.Assets.versioned("javascripts/vendor/polyfills/formdata.min.js"))'></script>
-    <script type="text/javascript" src='@relative(request, routes.Assets.versioned("javascripts/vendor/polyfills/classlist.min.js"))'></script>
-    <script type="text/javascript" src='@relative(request, routes.Assets.versioned("javascripts/vendor/polyfills/element-closest.min.js"))'></script>
 
     <script type="text/javascript">
       window.localPath = '@relative(request, routes.Assets.versioned(""))'
