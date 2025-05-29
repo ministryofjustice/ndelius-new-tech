@@ -59,18 +59,7 @@ excludeDependencies ++= Seq(
   ExclusionRule("commons-logging", "commons-logging")
 )
 
-// Wiremock only works with this older version of Jetty
-//val jettyVersion = "9.2.22.v20170606"
-//dependencyOverrides ++= Set(
-//  "org.eclipse.jetty" % "jetty-server" % jettyVersion,
-//  "org.eclipse.jetty" % "jetty-client" % jettyVersion,
-//  "org.eclipse.jetty" % "jetty-http" % jettyVersion,
-//  "org.eclipse.jetty" % "jetty-io" % jettyVersion,
-//  "org.eclipse.jetty" % "jetty-util" % jettyVersion
-//)
-
 assembly / mainClass := Some("play.core.server.ProdServerStart")
-
 assembly / fullClasspath += Attributed.blank(PlayKeys.playPackageAssets.value)
 
 assembly / assemblyMergeStrategy := {
@@ -102,15 +91,13 @@ browserifyTask := {
   implicit val fileHasherIncludingOptions: OpInputHasher[File] =
     OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath))
   val sources = (sourceDir ** ((Assets / browserifyTask / includeFilter).value -- DirectoryFilter)).get
-  val outputFile = browserifyOutputDir.value / "bundle.js"
-  val outputFile2 = browserifyOutputDir.value / "reports.js"
+  val outputFile = browserifyOutputDir.value / "reports.js"
 
   val results = incremental.syncIncremental((Assets / streams).value.cacheDirectory / "run", sources) {
     modifiedSources: Seq[File] =>
       if (modifiedSources.nonEmpty) {
         ( Assets / npmNodeModules ).value
-        val inputFile = baseDirectory.value / "app/assets/javascripts/index.js"
-        val inputFile2 = baseDirectory.value / "app/assets/javascripts/app.js"
+        val inputFile = baseDirectory.value / "app/assets/javascripts/app.js"
         val modules =  (baseDirectory.value / "node_modules").getAbsolutePath
         browserifyOutputDir.value.mkdirs
         executeJs(state.value,
@@ -121,19 +108,11 @@ browserifyTask := {
           Seq(inputFile.getPath, outputFile.getPath),
           60.seconds)
         ()
-        executeJs(state.value,
-          engineType.value,
-          None,
-          Seq(modules),
-          baseDirectory.value / "browserify.js",
-          Seq(inputFile2.getPath, outputFile2.getPath),
-          60.seconds)
-        ()
       }
 
       val opResults: Map[File, OpResult] =
         modifiedSources.map(file => (file, OpSuccess(Set(file), Set(outputFile)))).toMap
-      (opResults, List(outputFile, outputFile2))
+      (opResults, List(outputFile))
   }(fileHasherIncludingOptions)
 
   results._2
