@@ -74,6 +74,7 @@ jobs:
             export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
             export CUCUMBER_FILTER_TAGS="@SFR"
             sbt "testOnly bdd.RunCucumber" < /dev/null
+            if [ -s "target/cucumber-rerun.txt" ]; then sbt "testOnly bdd.RerunCucumber" < /dev/null; fi
       - store_test_results:
           path: ./target/test-reports/
       - store_artifacts:

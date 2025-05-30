@@ -5,6 +5,6 @@ import io.cucumber.junit.CucumberOptions;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features={"features/bdd"}, plugin = {"pretty", "rerun:target/cucumber-rerun.txt"})
-public class RunCucumber {
+@CucumberOptions(features = "@target/cucumber-rerun.txt", plugin = {"pretty"})
+public class RerunCucumber {
 }

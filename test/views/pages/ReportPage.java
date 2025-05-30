@@ -60,7 +60,7 @@ public class ReportPage extends FluentPage {
     }
 
     public void fillInputWithId(String fieldId, String text) {
-        $(id(fieldId)).fill().with(text);
+        $(id(fieldId)).fill().with(Optional.ofNullable(text).orElse(""));
         control.executeScript(String.format("document.getElementById('%s').blur()", fieldId));
     }
 
@@ -70,18 +70,21 @@ public class ReportPage extends FluentPage {
     }
 
     public String fieldNameFromLabel(String label) {
-        val fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).first().attribute("for");
-        return Optional.ofNullable(fieldId).orElseGet(() -> Optional.ofNullable(dateGroupFieldIdFromLegend(label)).orElseGet(() -> radioFieldNameFromLegend(label)));
+        val fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).stream().findAny()
+                .map(el -> el.attribute("for"));
+        return fieldId.orElseGet(() -> dateGroupFieldIdFromLegend(label).orElseGet(() -> radioFieldNameFromLegend(label).orElseThrow()));
     }
 
-    private String radioFieldNameFromLegend(String legend) {
+    private Optional<String> radioFieldNameFromLegend(String legend) {
         // find any radio input within section with legend - we just need the name of form field name
-        return findSectionFromLegend(legend).find(By.cssSelector("input[type='radio']")).first().attribute("name");
+        return findSectionFromLegend(legend).find(By.cssSelector("input[type='radio']")).stream().findAny()
+                .map(el -> el.attribute("name"));
     }
 
-    private String dateGroupFieldIdFromLegend(String legend) {
+    private Optional<String> dateGroupFieldIdFromLegend(String legend) {
         // find any radio input within section with legend - we just need the name of form field name
-        return findSectionFromLegend(legend).find(By.cssSelector(".govuk-date-input")).first().attribute("id");
+        return findSectionFromLegend(legend).find(By.cssSelector(".govuk-date-input")).stream().findAny()
+                .map(el -> el.attribute("id"));
     }
 
     public void clickElementWithId(String id) {
