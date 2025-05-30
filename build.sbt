@@ -27,7 +27,6 @@ libraryDependencies ++= Seq(
   guice,
   filters,
   javaWs,
-  ehcache,
   "org.webjars" %% "webjars-play" % "2.9.1",
   "org.webjars.bower" % "chartjs" % "2.6.0",
   "org.webjars" % "underscorejs" % "1.13.0-2",
@@ -50,6 +49,17 @@ libraryDependencies ++= Seq(
   "io.cucumber" % "cucumber-guice" % "7.23.0" % "test",
   "io.cucumber" % "cucumber-java" % "7.23.0" % "test",
   "io.cucumber" % "cucumber-junit" % "7.23.0" % "test"
+)
+
+dependencyOverrides ++= Seq(
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.18.4",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.4",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.18.4",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.18.4",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.18.4",
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.18.4",
+  "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % "2.18.4",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.4",
 )
 
 excludeDependencies ++= Seq(
