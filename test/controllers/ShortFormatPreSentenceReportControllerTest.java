@@ -14,7 +14,6 @@ import interfaces.OffenderApi.CourtReport;
 import interfaces.OffenderApi.Offences;
 import interfaces.PdfGenerator;
 import lombok.val;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -1414,7 +1413,6 @@ public class ShortFormatPreSentenceReportControllerTest extends WithApplication 
                         bind(PdfGenerator.class).toInstance(pdfGenerator),
                         bind(DocumentStore.class).toInstance(documentStore),
                         bind(OffenderApi.class).toInstance(offenderApi),
-                        bind(RestHighLevelClient.class).toInstance(mock(RestHighLevelClient.class)),
                         bind(MongoClient.class).toInstance(mock(MongoClient.class))
                 )
                 .configure("params.user.token.valid.duration", "100000d")

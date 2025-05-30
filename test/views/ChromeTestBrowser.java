@@ -19,7 +19,7 @@ public class ChromeTestBrowser {
         if (INSTANCE == null) {
             WebDriverManager.chromedriver().setup();
             ChromeOptions options = new ChromeOptions();
-            options.addArguments("--headless");
+//            options.addArguments("--headless");
             options.addArguments("--disable-gpu");
             options.setImplicitWaitTimeout(Duration.ofSeconds(5));
             INSTANCE = Helpers.testBrowser(new ChromeDriver(options), port);

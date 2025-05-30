@@ -3,14 +3,10 @@ import com.mongodb.rx.client.MongoClient;
 import injection.DocumentStoreProvider;
 import injection.MongoClientProvider;
 import injection.OffenderApiProvider;
-import injection.RestClientBuilderProvider;
-import injection.RestHighLevelClientProvider;
 import interfaces.DocumentStore;
 import interfaces.OffenderApi;
 import interfaces.PdfGenerator;
 import interfaces.UserAwareApiToken;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
 import services.RestPdfGenerator;
 import services.UserAwareAuthenticationApi;
 
@@ -34,8 +30,6 @@ public class Module extends AbstractModule {
 
         bind(DocumentStore.class).toProvider(DocumentStoreProvider.class);
         bind(OffenderApi.class).toProvider(OffenderApiProvider.class);
-        bind(RestClientBuilder.class).toProvider(RestClientBuilderProvider.class);
-        bind(RestHighLevelClient.class).toProvider(RestHighLevelClientProvider.class);
 
         bind(MongoClient.class).toProvider(MongoClientProvider.class).asEagerSingleton();
     }

@@ -10,7 +10,6 @@ import interfaces.PdfGenerator;
 import lombok.Value;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
 import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -22,6 +21,7 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
@@ -110,7 +110,7 @@ public class UtilityController extends Controller {
 
         return ImmutableMap.<String, Object>builder().
                 put("status", toStatus(overallStatus)).
-                put("dateTime", DateTime.now().toString()).
+                put("dateTime", LocalDateTime.now().toString()).
                 put("version", version()).
                 put("runtime", runtimeInfo()).
                 put("fileSystems", fileSystemDetails()).
