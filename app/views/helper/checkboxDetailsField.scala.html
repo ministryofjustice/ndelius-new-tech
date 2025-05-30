@@ -4,7 +4,7 @@
 @implicitField = @{ FieldConstructor(govukElements.f) }
 
 @sectionId = @{name + "-details"}
-@arguments = @{ scala.Predef.Map('_label -> label, Symbol("data-aria-controls") -> sectionId) }
+@arguments = @{ scala.Predef.Map('_label -> label, Symbol("aria-controls") -> sectionId) }
 @allArguments = @{ error match {
     case Some(text) => arguments + ('_error -> text)
     case _ => arguments

@@ -7,7 +7,7 @@
 <footer class="moj-report-footer">
     <div class="moj-report-footer__container-left">
 
-        <button class="govuk-button moj-button--secondary moj-tooltip govuk-!-margin-bottom-1" id="draftReport" type="button" data-target="@relative(request, routes.ShortFormatPreSentenceReportController.getPdf(encrypter(reportForm("documentId").value().getOrElse("")), encrypter(reportForm("onBehalfOfUser").value().getOrElse(""))))">
+        <button class="govuk-button govuk-button--secondary moj-tooltip govuk-!-margin-bottom-1" id="draftReport" type="button" data-target="@relative(request, routes.ShortFormatPreSentenceReportController.getPdf(encrypter(reportForm("documentId").value().getOrElse("")), encrypter(reportForm("onBehalfOfUser").value().getOrElse(""))))">
             View draft report
         </button>
 
@@ -29,7 +29,7 @@
         }
 
         @if(showCloseButton) {
-            <button class="govuk-button moj-button--secondary moj-tooltip govuk-!-margin-bottom-1" id="exitLink" type="button" aria-label="Close" >
+            <button class="govuk-button govuk-button--secondary moj-tooltip govuk-!-margin-bottom-1" id="exitLink" type="button" aria-label="Close" >
                 Close<span>Save and close your report</span>
             </button>
         }

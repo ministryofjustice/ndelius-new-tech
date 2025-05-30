@@ -16,7 +16,7 @@
     <div class="govuk-form-group @if(!reportForm.errors("sourcesPreviousConvictions").isEmpty) { govuk-form-group--error}">
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-label">Select the relevant options</legend>
-            <div class="govuk-checkboxes" data-module="checkboxes">
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                 @checkbox(reportForm("interviewInformationSource"), '_label -> "Interview")
                 @checkbox(reportForm("serviceRecordsInformationSource"), '_label -> "Service records")
                 @checkbox(reportForm("cpsSummaryInformationSource"), '_label -> "CPS summary")
@@ -29,7 +29,7 @@
                 @checkbox(reportForm("domesticAbuseInformationSource"), '_label -> "Domestic abuse call out information")
                 @checkbox(reportForm("medicalInformationSource"), '_label -> "Medical information")
                 @checkbox(reportForm("equalityInformationFormInformationSource"), '_label -> "Equalities Information")
-                @checkbox(reportForm("otherInformationSource"), '_label -> "Other (please specify below)", Symbol("data-aria-controls") -> "other-sources")
+                @checkbox(reportForm("otherInformationSource"), '_label -> "Other (please specify below)", Symbol("aria-controls") -> "other-sources")
 
                 <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden govuk-!-margin-top-2" id="other-sources">
                 @textarea(reportForm("otherInformationDetails"), '_label -> "Other source(s) of information")

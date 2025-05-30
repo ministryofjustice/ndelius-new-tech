@@ -58,7 +58,7 @@
     <div class="govuk-form-group@if(allErrors(reportForm).stream.anyMatch(_.key.contains("issue"))) { govuk-form-group--error}">
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-label">Select any factors relating to offending behaviour and the individual’s need, including any protective factors.</legend>
-            <div class="govuk-checkboxes" data-module="checkboxes">
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                 @checkbox(reportForm("issueAccommodation"), '_label -> "Accommodation")
                 @checkbox(reportForm("issueEmployment"), '_label -> "Employment, training and education")
                 @checkbox(reportForm("issueFinance"), '_label -> "Finance")
@@ -74,7 +74,7 @@
 
 <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-<div class="govuk-form-group" data-module="radios">
+<div class="govuk-form-group" data-module="govuk-radios">
     <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-label">
             Is there evidence of the offender experiencing trauma?
@@ -93,7 +93,7 @@
 
 <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
-<div class="govuk-form-group" data-module="radios">
+<div class="govuk-form-group" data-module="govuk-radios">
     <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-label">
             Does the offender have caring responsibilities for children or adults, or have they ever had caring responsibilities for children or adults?

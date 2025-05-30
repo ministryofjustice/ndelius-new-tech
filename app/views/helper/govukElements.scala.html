@@ -6,8 +6,8 @@
 
 @if(elements.input.body.contains("type=\"checkbox\"")) {
   @govukInfoErrors(elements)
-  <div class="govuk-checkboxes__item" @for((key, value) <- elements.args if !key.name.startsWith("_") && key.name != "data-aria-controls") { @{key.name}=@{value} }>
-    <input class="govuk-checkboxes__input @elements.args.get('class)" type="checkbox" role="checkbox" id="@elements.id" name="@elements.field.name" value="true" @if(Boolean.parseBoolean(elements.field.value.getOrElse("false"))) { checked="checked" } aria-checked="@Boolean.parseBoolean(elements.field.value.getOrElse("false"))" aria-described-by="@elements.id-error" @if(elements.args.get('required)) {aria-required="@elements.args.get('required)"} @if(elements.args.get(Symbol("data-aria-controls"))) {data-aria-controls="@elements.args.get(Symbol("data-aria-controls"))"} />
+  <div class="govuk-checkboxes__item" @for((key, value) <- elements.args if !key.name.startsWith("_") && key.name != "aria-controls") { @{key.name}=@{value} }>
+    <input class="govuk-checkboxes__input @elements.args.get('class)" type="checkbox" role="checkbox" id="@elements.id" name="@elements.field.name" value="true" @if(Boolean.parseBoolean(elements.field.value.getOrElse("false"))) { checked="checked" } aria-checked="@Boolean.parseBoolean(elements.field.value.getOrElse("false"))" aria-described-by="@elements.id-error" @if(elements.args.get('required)) {aria-required="@elements.args.get('required)"} @if(elements.args.get(Symbol("aria-controls"))) {aria-controls="@elements.args.get(Symbol("aria-controls"))"} />
     <label class="govuk-label govuk-checkboxes__label" for="@elements.id">
         <span>@elements.label</span>
     </label>
@@ -16,7 +16,7 @@
     <div class="govuk-radios@if(elements.hasErrors) { govuk-form-group--error} @if(elements.args.get(Symbol("_inline"))) {govuk-radios--inline}">
         @govukInfoErrors(elements)
         @htmlLines.init.tail.grouped(2).map(_.mkString).map { radioAndLabel =>
-            <div class="govuk-radios__item" @for((key, value) <- elements.args if !key.name.startsWith("_") && key.name != "data-aria-controls") { @{key.name}=@{value} }>
+            <div class="govuk-radios__item" @for((key, value) <- elements.args if !key.name.startsWith("_") && key.name != "aria-controls") { @{key.name}=@{value} }>
             @{
                 val matcher = Pattern.compile("value=\"(.*)\" ").matcher(radioAndLabel)
                 matcher.find()
@@ -24,7 +24,7 @@
 
                 Html(radioAndLabel
                         .replace("checked=\"checked\"", "checked=\"checked\" aria-checked=\"checked\"")
-                        .replaceFirst("data-aria-controls=\"(.*)\"/>", String.format("data-aria-controls=\"$1-%s\"/>", value))
+                        .replaceFirst("aria-controls=\"(.*)\"/>", String.format("aria-controls=\"$1-%s\"/>", value))
                         .replace("<input ", "<input class=\"govuk-radios__input\" ")
                         .replace("<label ", "<label class=\"govuk-label govuk-radios__label\" ")
                         .replaceAll("((?:id|for)=\".*?)\\/(.*?\")", "$1_$2")
@@ -41,9 +41,9 @@
             </legend>
 
             @if(elements.args.get(Symbol("_form_hint"))) {
-            <span id="@elements.id-hint" class="govuk-hint">
+            <div id="@elements.id-hint" class="govuk-hint">
                 @elements.args.get(Symbol("_form_hint"))
-            </span>
+            </div>
             }
             @govukInfoErrors(elements)
             <div class="govuk-date-input" id="@elements.id">
@@ -56,7 +56,7 @@
                             <label class="govuk-label govuk-date-input__label" for="@elements.id-day">
                                 Day
                             </label>
-                            <input class="govuk-input govuk-date-input__input govuk-input--width-2 @if(elements.hasErrors) { govuk-input--error}" id="@elements.id-day" name="@{elements.field.name}_day" type="number" pattern="[0-9]*" value="@elements.args.get(Symbol("_day"))" >
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2 @if(elements.hasErrors) { govuk-input--error}" id="@elements.id-day" name="@{elements.field.name}_day" type="text" inputmode="numeric" pattern="[0-9]*" value="@elements.args.get(Symbol("_day"))" >
                         </div>
                     </div>
                 }
@@ -65,7 +65,7 @@
                         <label class="govuk-label govuk-date-input__label" for="@elements.id-month">
                             Month
                         </label>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-2 @if(elements.hasErrors) { govuk-input--error}" id="@elements.id-month" name="@{elements.field.name}_month" type="number" pattern="[0-9]*"  value="@elements.args.get(Symbol("_month"))" >
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-2 @if(elements.hasErrors) { govuk-input--error}" id="@elements.id-month" name="@{elements.field.name}_month" type="text" inputmode="numeric" pattern="[0-9]*"  value="@elements.args.get(Symbol("_month"))" >
                     </div>
                 </div>
                 <div class="govuk-date-input__item">
@@ -73,7 +73,7 @@
                         <label class="govuk-label govuk-date-input__label" for="@elements.id-year">
                             Year
                         </label>
-                        <input class="govuk-input govuk-date-input__input govuk-input--width-4 @if(elements.hasErrors) { govuk-input--error}" id="@elements.id-year" name="@{elements.field.name}_year" type="number" pattern="[0-9]*"  value="@elements.args.get(Symbol("_year"))" >
+                        <input class="govuk-input govuk-date-input__input govuk-input--width-4 @if(elements.hasErrors) { govuk-input--error}" id="@elements.id-year" name="@{elements.field.name}_year" type="text" inputmode="numeric" pattern="[0-9]*"  value="@elements.args.get(Symbol("_year"))" >
                     </div>
                 </div>
             </div>
@@ -84,7 +84,7 @@
   <div class="govuk-form-group@if(elements.hasErrors) { govuk-form-group--error}">
     @govukLabel(elements)
     @if(elements.input.body.contains("textarea id=")) {
-      <span id="@elements.id-autosave_error" class="govuk-error-message govuk-visually-hidden" aria-hidden="true">We can't currently save your report as the service is unavailable</span>
+      <div id="@elements.id-autosave_error" class="govuk-error-message govuk-visually-hidden" aria-hidden="true">We can't currently save your report as the service is unavailable</div>
         <textarea class="govuk-textarea moj-textarea @elements.args.get('class)@if(elements.hasErrors) { govuk-textarea--error}" aria-label="@elements.label" role="textbox" placeholder="@if(elements.args.get('placeholder)) {@elements.args.get('placeholder)} else {Start typing here...}" id="@elements.id" name="@elements.field.name" @for((key, value) <- elements.args if !key.name.startsWith("_")) { @{key.name}=@{value} } aria-described-by="@elements.id-error" @if(elements.args.get('required)) {aria-required="@elements.args.get('required)"}>@elements.field.value</textarea>
 
         <div id="@elements.id-tinymce" class="moj-rich-text-editor @elements.args.get('class)" data-id="@elements.id" @for((key, value) <- elements.args if !key.name.startsWith("_")) { @{key.name}=@{value} } aria-described-by="@elements.id-error">@Html.apply(elements.field.value.map(_.toString).getOrElse(""))</div>
@@ -99,7 +99,7 @@
           @htmlLines.filter(_.startsWith("<option ")).map(Html(_))
       </select>
     } else {
-      <input class="govuk-input @if(elements.args.get(Symbol("_number"))) {govuk-!-width-one-half} @elements.args.get('class)@if(elements.hasErrors) { govuk-input--error}" @if(elements.args.get(Symbol("_number"))) {type="number"} else {type="text"} role="textbox" placeholder="@elements.args.get('placeholder)" id="@elements.id" name="@elements.field.name" value="@elements.field.value" maxlength="250" aria-described-by="@elements.id-error" @if(elements.args.get('required)) {aria-required="@elements.args.get('required)"} />
+      <input class="govuk-input @if(elements.args.get(Symbol("_number"))) {govuk-!-width-one-half} @elements.args.get('class)@if(elements.hasErrors) { govuk-input--error}" @if(elements.args.get(Symbol("_number"))) {type="text" inputmode="numeric" } else {type="text"} role="textbox" placeholder="@elements.args.get('placeholder)" id="@elements.id" name="@elements.field.name" value="@elements.field.value" maxlength="250" aria-described-by="@elements.id-error" @if(elements.args.get('required)) {aria-required="@elements.args.get('required)"} />
     }
   </div>
 }

@@ -1,7 +1,7 @@
 @(elements: helper.FieldElements)
 
 @for(info <- elements.infos) {
-    <span class="govuk-hint govuk-!-margin-bottom-0">@info</span>
+    <div class="govuk-hint govuk-!-margin-bottom-0">@info</div>
 }
 
 @elements.args.get('_hint).map { hint =>
@@ -16,6 +16,6 @@
 }
 
 @for(error <- elements.errors) {
-    <span class="govuk-error-message" aria-hidden="true">@elements.args.getOrElse('_error, error)</span>
+    <div class="govuk-error-message" aria-hidden="true">@elements.args.getOrElse('_error, error)</div>
     <span id="@elements.id-error" role="alert" class="govuk-visually-hidden">Please enter @elements.label</span>
 }

@@ -1,4 +1,3 @@
-import { Details } from 'govuk-frontend'
 import { initSummaryAnalytics } from './summary'
 import { trackEvent } from '../../helpers/analyticsHelper'
 
@@ -28,7 +27,6 @@ describe('Summary component', () => {
   describe('with the details component below caption text', () => {
     beforeEach(() => {
       document.body.innerHTML = addToMainTestDOM('<h2 class="govuk-caption-xl">Some caption text</h2>')
-      new Details().init()
       initSummaryAnalytics()
     })
 
@@ -53,7 +51,6 @@ describe('Summary component', () => {
   describe('with the details component below an input field label', () => {
     beforeEach(() => {
       document.body.innerHTML = addToMainTestDOM('<label class="govuk-label"><span>Some text label</span></label>')
-      new Details().init()
       initSummaryAnalytics()
     })
 
