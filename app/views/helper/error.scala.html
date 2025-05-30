@@ -2,7 +2,9 @@
 @import org.webjars.play.WebJarsUtil
 @import com.typesafe.config.Config
 
-@(title: String, error: String)(implicit webJarsUtil: WebJarsUtil, configuration: Config)
+@this(implicit webJarsUtil: WebJarsUtil, configuration: Config)
+
+@(title: String, error: String)(implicit request: Http.Request)
 
 <style type="text/css">
         body, html {

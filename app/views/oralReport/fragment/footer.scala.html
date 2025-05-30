@@ -2,12 +2,12 @@
 @import helpers.CallHelper.relative
 @import data._
 
-@(page: Int, reportForm: Form[OralReportData], encrypter: String => String, nextText: Option[(String, Option[String])] = None, showCloseButton: Boolean = true, showNextButton: Boolean = true)
+@(page: Int, reportForm: Form[OralReportData], encrypter: String => String, nextText: Option[(String, Option[String])] = None, showCloseButton: Boolean = true, showNextButton: Boolean = true)(implicit request: Http.Request)
 <p>&nbsp;</p>
 <footer class="moj-report-footer">
     <div class="moj-report-footer__container-left">
 
-        <button class="govuk-button moj-button--secondary moj-tooltip govuk-!-margin-bottom-1" id="draftReport" type="button" data-target="@relative(routes.OralReportController.getPdf(encrypter(reportForm("documentId").getValue.getOrElse("")), encrypter(reportForm("onBehalfOfUser").getValue.getOrElse(""))))">
+        <button class="govuk-button govuk-button--secondary moj-tooltip govuk-!-margin-bottom-1" id="draftReport" type="button" data-target="@relative(request, routes.OralReportController.getPdf(encrypter(reportForm("documentId").value().getOrElse("")), encrypter(reportForm("onBehalfOfUser").value().getOrElse(""))))">
             View draft report
         </button>
 
@@ -29,7 +29,7 @@
         }
 
         @if(showCloseButton) {
-            <button class="govuk-button moj-button--secondary moj-tooltip govuk-!-margin-bottom-1" id="exitLink" type="button" aria-label="Close" >
+            <button class="govuk-button govuk-button--secondary moj-tooltip govuk-!-margin-bottom-1" id="exitLink" type="button" aria-label="Close" >
                 Close<span>Save and close your report</span>
             </button>
         }

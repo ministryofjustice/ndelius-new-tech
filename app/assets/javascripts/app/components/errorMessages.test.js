@@ -21,19 +21,19 @@ describe('Error messages component', () => {
       '</div>' +
 
       '<label class="govuk-label" for="firstInput">' +
-      '  <span class="govuk-error-message" aria-hidden="true">This is the first new error message</span>' +
+      '  <div class="govuk-error-message" aria-hidden="true">This is the first new error message</div>' +
       '  <span id="firstInput-error" role="alert" class="govuk-visually-hidden">This is the first new error message</span>' +
       '</label>' +
       '<input type="hidden" name="firstInput" value="">' +
 
       '<label class="govuk-label" for="secondInput">' +
-      '  <span class="govuk-error-message" aria-hidden="true">This is the second new error message</span>' +
+      '  <div class="govuk-error-message" aria-hidden="true">This is the second new error message</div>' +
       '  <span id="secondInput-error" role="alert" class="govuk-visually-hidden">This is the second new error message</span>' +
       '</label>' +
       '<input type="hidden" name="secondInput" value="">' +
 
       '<label class="govuk-label" for="thirdInput">' +
-      '  <span class="govuk-error-message" aria-hidden="true">This is the third new error message</span>' +
+      '  <div class="govuk-error-message" aria-hidden="true">This is the third new error message</div>' +
       '  <span id="thirdInput-error" role="alert" class="govuk-visually-hidden">This is the third new error message</span>' +
       '</label>' +
       '<input type="hidden" name="thirdInput" value="">'

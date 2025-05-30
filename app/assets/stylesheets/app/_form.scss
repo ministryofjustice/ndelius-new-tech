@@ -7,7 +7,10 @@ textarea:not(.moj-textarea--classic) {
 }
 
 .moj-rich-text-editor {
-  @include govuk-focusable
+  &:focus {
+    outline: $govuk-focus-width solid $govuk-focus-colour;
+    outline-offset: 0;
+  }
 
   &.moj-textarea--prefilled {
     border: 2px solid $govuk-text-colour;
@@ -16,5 +19,106 @@ textarea:not(.moj-textarea--classic) {
 
   &.moj-textarea--classic {
     display: none;
+  }
+}
+
+.moj-table {
+
+  width: 100%;
+
+  th, td {
+    vertical-align: top;
+  }
+
+  td p, th p {
+    margin-top: 0;
+    margin-bottom: 5px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &.moj-table--split-rows {
+
+    thead tr {
+      border-bottom: 2px solid govuk-colour("black");
+    }
+
+    th, td {
+      padding: govuk-em(govuk-spacing(2), 19px) govuk-em(govuk-spacing(4), 19px) govuk-em(govuk-spacing(2), 19px) 0;
+      border-bottom: 1px solid $govuk-border-colour;
+      text-align: left;
+    }
+
+    th {
+      @include govuk-typography-weight-bold();
+    }
+
+    tbody tr:last-child {
+      border: 0;
+
+      td, th {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  &.moj-table--row-counting {
+
+    counter-reset: rowNumber;
+
+    tbody {
+      counter-reset: rowNumber;
+    }
+
+    tr {
+      counter-increment: rowNumber;
+
+      th:first-child, td:first-child {
+        padding-left: 2em;
+      }
+
+      td:first-child::before {
+        display: inline-block;
+        content: counter(rowNumber) ".";
+        min-width: 2em;
+        margin-left: -2em;
+      }
+    }
+  }
+}
+
+.govuk-tag {
+  &.moj-tag--prototype {
+    background-color: govuk-colour("red");
+  }
+}
+
+.moj-page-status-tag {
+  @include govuk-font($size: 16);
+
+  display: inline-block;
+  color: govuk-colour("white");
+  margin: 0;
+  width: 135px;
+  text-align: center;
+  padding-top: govuk-spacing(1);
+  padding-bottom: govuk-spacing(1);
+  border-bottom: 1px solid govuk-colour("black");
+  text-transform: uppercase;
+
+  &.moj-page-status-tag--saved {
+    background-color: govuk-colour("blue");
+  }
+
+  &.moj-page-status-tag--incomplete {
+    background-color: govuk-colour("orange");
+  }
+
+  &.moj-page-status-tag--empty {
+    border: 1px solid govuk-colour("mid-grey");
+    background-color: govuk-colour("white");
+    color: govuk-colour("mid-grey");
   }
 }

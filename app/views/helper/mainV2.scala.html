@@ -1,9 +1,9 @@
-@import helper._
-@import org.webjars.play.WebJarsUtil
 @import com.typesafe.config.Config
+@import helper._
 @import helpers.CallHelper.relative
+@import org.webjars.play.WebJarsUtil
 
-@(title: String, banner: Boolean = true, hashName: Option[Any] = None)(content: Html)(implicit webJarsUtil: WebJarsUtil, configuration: Config)
+@(title: String, banner: Boolean = true, hashName: Option[Any] = None)(content: Html)(implicit webJarsUtil: WebJarsUtil, configuration: Config, request: Http.Request)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,25 +14,19 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta http-equiv="x-ua-compatible" content="IE=edge" />
 
-        <link rel="stylesheet" media="screen" href='@relative(routes.Assets.versioned("stylesheets/main.css"))' />
-        <link rel="shortcut icon" type="image/x-icon" href='@relative(routes.Assets.versioned("images/favicon.ico"))' />
+        <link rel="stylesheet" media="screen" href='@relative(request, routes.Assets.versioned("stylesheets/main.css"))' />
+        <link rel="shortcut icon" type="image/x-icon" href='@relative(request, routes.Assets.versioned("images/favicon.ico"))' />
 
         @googleAnalyticsHead(hashName)
 
-        <script type="text/javascript" src='@relative(routes.Assets.versioned("javascripts/vendor/polyfills/formdata.min.js"))'></script>
-        <script type="text/javascript" src='@relative(routes.Assets.versioned("javascripts/vendor/polyfills/classlist.min.js"))'></script>
-        <script type="text/javascript" src='@relative(routes.Assets.versioned("javascripts/vendor/polyfills/element-closest.min.js"))'></script>
-
         <script type="text/javascript">
-            window.localPath = '@relative(routes.Assets.versioned(""))'
+            window.localPath = '@relative(request, routes.Assets.versioned(""))'
         </script>
 
     </head>
     <body class="govuk-template__body">
 
-        <script>
-            document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled')
-        </script>
+        <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
 
         <div class="moj-width-container@if(hashName.contains(1) || hashName.contains("cancelled") || hashName.contains("completed")) { govuk-width-container }">
             <main class="govuk-main-wrapper@if(!hashName.contains(1) && !hashName.contains("cancelled") && !hashName.contains("completed")) { moj-scroll-container}" id="content">
@@ -57,7 +51,7 @@
             </main>
         </div>
 
-        <script src='@relative(routes.Assets.versioned("reports.js"))'></script>
+        <script src='@relative(request, routes.Assets.versioned("reports.js"))'></script>
 
     </body>
 </html>

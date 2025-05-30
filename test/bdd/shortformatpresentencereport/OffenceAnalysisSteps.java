@@ -1,8 +1,9 @@
 package bdd.shortformatpresentencereport;
 
-import javax.inject.Inject;
-import cucumber.api.java.en.Given;
+import io.cucumber.java.en.Given;
 import views.pages.shortformatpresentencereport.OffenceAnalysisPage;
+
+import javax.inject.Inject;
 
 import static views.pages.shortformatpresentencereport.Page.OFFENCE_ANALYSIS;
 

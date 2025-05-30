@@ -15,8 +15,6 @@ public class CucumberModule extends AbstractModule {
         bind(WireMockServer.class).annotatedWith(Names.named("pdfWireMock")).toInstance( new WireMockServer(wireMockConfig().port(Ports.PDF.getPort()).jettyStopTimeout(10000L)));
         bind(WireMockServer.class).annotatedWith(Names.named("alfrescofWireMock")).toInstance( new WireMockServer(wireMockConfig().port(Ports.ALFRESCO.getPort()).jettyStopTimeout(10000L)));
         bind(WireMockServer.class).annotatedWith(Names.named("offenderApiWireMock")).toInstance( new WireMockServer(wireMockConfig().port(Ports.OFFENDER_API.getPort()).jettyStopTimeout(10000L)));
-        bind(WireMockServer.class).annotatedWith(Names.named("custodyApiWireMock")).toInstance( new WireMockServer(wireMockConfig().port(Ports.CUSTODY_API.getPort()).jettyStopTimeout(10000L)));
-        bind(WireMockServer.class).annotatedWith(Names.named("probationSearchApiWireMock")).toInstance( new WireMockServer(wireMockConfig().port(Ports.SEARCH_API.getPort()).jettyStopTimeout(10000L)));
     }
 
 }

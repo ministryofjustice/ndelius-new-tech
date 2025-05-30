@@ -1,5 +1,6 @@
 package helpers;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.val;
@@ -9,17 +10,17 @@ import play.mvc.Http;
 
 public interface CallHelper {
 
-    static String relative(String url) {
+    static String relative(Http.Request request, String url) {
 
-        val path = Http.Context.current().request().path();
-        val depth = Math.max(0, StringUtils.countMatches(path, "/") - 1);
-        val relative = String.join("", IntStream.range(0, depth).mapToObj(x -> "../").collect(Collectors.toList()));
+        String path = request.path();
+        int depth = Math.max(0, StringUtils.countMatches(path, "/") - 1);
+        String relative = String.join("", IntStream.range(0, depth).mapToObj(x -> "../").collect(Collectors.toList()));
 
         return relative + url.substring(1);
     }
 
-    static Call relative(Call call) {
+    static Call relative(Http.Request request, Call call) {
 
-        return call.copy(call.method(), relative(call.url()), call.fragment());
+        return call.copy(call.method(), relative(request, call.url()), call.fragment());
     }
 }

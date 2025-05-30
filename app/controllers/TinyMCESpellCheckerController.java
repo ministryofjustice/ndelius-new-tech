@@ -8,6 +8,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import services.SpellcheckService;
 
@@ -28,8 +29,8 @@ public class TinyMCESpellCheckerController extends Controller {
         this.spellcheckService = spellcheckService;
     }
 
-    public Result findSpellings() {
-        val wordsRequested = wordsRequestedForm.bindFromRequest().get();
+    public Result findSpellings(Http.Request request) {
+        val wordsRequested = wordsRequestedForm.bindFromRequest(request).get();
         Optional<Params> params = Optional.ofNullable(wordsRequested.getParams());
         return params
                 .map(result -> ok(Json.parse(spellcheckService.getSpellCheckSuggestions(joinToSingleText(wordsRequested.getParams().getWords())))))

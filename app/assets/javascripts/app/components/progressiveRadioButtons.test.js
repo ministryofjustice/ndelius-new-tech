@@ -13,11 +13,11 @@ describe('Progressive radio buttons component', () => {
       '    </legend>' +
       '    <div class="govuk-radios">' +
       '      <div class="govuk-radios__item">' +
-      '        <input id="radioItems_one" name="radioItems" type="radio" value="one" class="govuk-radios__input" data-aria-controls="qa-content-progressive" aria-expanded="false" />' +
+      '        <input id="radioItems_one" name="radioItems" type="radio" value="one" class="govuk-radios__input" aria-controls="qa-content-progressive" aria-expanded="false" />' +
       '        <label for="radioItems_one" class="govuk-label govuk-radios__label">Radio 1</label>' +
       '      </div>' +
       '      <div class="govuk-radios__item">' +
-      '        <input id="radioItems_two" name="radioItems" type="radio" value="two" class="govuk-radios__input" data-aria-controls="qa-content-progressive" aria-expanded="false" />' +
+      '        <input id="radioItems_two" name="radioItems" type="radio" value="two" class="govuk-radios__input" aria-controls="qa-content-progressive" aria-expanded="false" />' +
       '        <label for="radioItems_two" class="govuk-label govuk-radios__label">Radio 2</label>' +
       '      </div>' +
       '    </div>' +

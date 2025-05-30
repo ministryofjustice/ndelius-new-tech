@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/ministryofjustice/ndelius-new-tech.svg?style=svg)](https://circleci.com/gh/ministryofjustice/ndelius-new-tech)
 
-A [Play Framework](https://www.playframework.com/) based website, developed in [Java 8](http://www.oracle.com/technetwork/java/javase/8-whats-new-2157071.html) with additional [Lombok](https://projectlombok.org/features/all) support.
+A [Play Framework](https://www.playframework.com/) based website.
 
 Fully asynchronous and non-blocking from the ground up, with the potential to serve 10,000 concurrent users from a single server.
 
@@ -11,9 +11,9 @@ Fully asynchronous and non-blocking from the ground up, with the potential to se
 ## Development
 
 Prerequisites:
-- Java 8
+- Java 21
 - [sbt](http://www.scala-sbt.org/release/docs) (Scala Build Tool)
-- Node [lts/dubnium](https://nodejs.org/download/release/latest-dubnium/)
+- Node 22
 - [nDelius Wrapper](https://github.com/ministryofjustice/ndelius-wrapper)
 - [PDF Generator](https://github.com/ministryofjustice/pdf-generator)
 - Docker
@@ -71,7 +71,7 @@ npm i
 Pass the required environment variables and start the application:
 
 ```
-OFFENDER_API_PROVIDER=stub ELASTIC_SEARCH_SCHEME=http STORE_PROVIDER=mongo PARAMS_USER_TOKEN_VALID_DURATION=10000d PRISONER_API_PROVIDER=stub sbt -Dlogback.application.level=DEBUG run
+OFFENDER_API_PROVIDER=stub ELASTIC_SEARCH_SCHEME=http STORE_PROVIDER=mongo PARAMS_USER_TOKEN_VALID_DURATION=10000d sbt -Dlogback.application.level=DEBUG run
 ```
 
 ### nDelius Wrapper
@@ -136,7 +136,7 @@ Run all tests:
 - sbt clean test
 
 Run frontend tests:
-- sbt mocha
+- npm test
 
 ### Circle CI build
 

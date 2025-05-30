@@ -8,7 +8,7 @@
 
 @this(implicit webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config)
 
-@(reportForm: Form[OralReportData], encrypter: String => String, reviewPage: Int)
+@(reportForm: Form[OralReportData], encrypter: String => String, reviewPage: Int)(implicit request: Http.Request)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 
@@ -28,7 +28,7 @@
             <td style="width: 36px; vertical-align: top;"><span class="moj-icon moj-icon--pdf" /></td>
             <td>
                 <p class="govuk-body" id="view-pdf">Review and print your draft 'Record of Oral Pre-Sentence Report'<br>
-                    <a class="js-view-draft govuk-link govuk-link--no-visited-state" href="@relative(routes.OralReportController.getPdf(encrypter(reportForm("documentId").getValue.getOrElse("")), encrypter(reportForm("onBehalfOfUser").getValue.getOrElse(""))))" aria-label="View PDF">View your draft PDF report</a>
+                    <a class="js-view-draft govuk-link govuk-link--no-visited-state" href="@relative(request, routes.OralReportController.getPdf(encrypter(reportForm("documentId").value().getOrElse("")), encrypter(reportForm("onBehalfOfUser").value().getOrElse(""))))" aria-label="View PDF">View your draft PDF report</a>
                 </p>
             </td>
         </tr>
@@ -53,7 +53,7 @@
 
 </div>
 
-    @helper.form(action = relative(routes.OralReportController.wizardPost()), 'id -> "ndForm", 'novalidate -> "") {
+    @helper.form(action = relative(request, routes.OralReportController.wizardPost), 'id -> "ndForm", 'novalidate -> "") {
         @CSRF.formField
 
         <input type="hidden" name="jumpNumber" id="jumpNumber"/>

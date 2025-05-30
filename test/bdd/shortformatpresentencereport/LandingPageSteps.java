@@ -1,9 +1,9 @@
 package bdd.shortformatpresentencereport;
 
 import bdd.wiremock.AlfrescoStoreMock;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import lombok.val;
 import views.pages.shortformatpresentencereport.LandingPage;
 import views.pages.shortformatpresentencereport.OffenderDetailsPage;

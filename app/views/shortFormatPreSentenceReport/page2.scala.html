@@ -7,7 +7,7 @@
 @import org.webjars.play.WebJarsUtil
 @import fragment._
 
-@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config)
+@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config, request: Http.Request, messagesProvider: MessagesProvider)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 
@@ -17,17 +17,17 @@
     @readOnlyField(reportForm("dateOfBirth"), "Date of birth", encrypter)
     @readOnlyField(reportForm("age"), "Age", encrypter)
     @readOnlyField(reportForm("crn"), "Delius CRN", encrypter)
-    @if(Boolean.parseBoolean(reportForm("addressSupplied").getValue.orElse("false"))) {
+    @if(Boolean.parseBoolean(reportForm("addressSupplied").value().orElse("false"))) {
         @readOnlyField(reportForm("address"), "Address", encrypter)
     }
-    @if(Boolean.parseBoolean(reportForm("pncSupplied").getValue.orElse("false"))) {
+    @if(Boolean.parseBoolean(reportForm("pncSupplied").value().orElse("false"))) {
         @readOnlyField(reportForm("pnc"), "PNC ID", encrypter)
     }
 
-    @if(!Boolean.parseBoolean(reportForm("addressSupplied").getValue.orElse("false"))) {
+    @if(!Boolean.parseBoolean(reportForm("addressSupplied").value().orElse("false"))) {
         @inputText(reportForm("address"), '_label -> "Address")
     }
-    @if(!Boolean.parseBoolean(reportForm("pncSupplied").getValue.orElse("false"))) {
+    @if(!Boolean.parseBoolean(reportForm("pncSupplied").value().orElse("false"))) {
         @inputText(reportForm("pnc"), '_label -> "PNC ID (if available)", 'class -> "half-width")
     }
 }

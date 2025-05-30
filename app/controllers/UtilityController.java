@@ -3,12 +3,17 @@ package controllers;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import helpers.JsonHelper;
-import interfaces.*;
+import interfaces.DocumentStore;
+import interfaces.HealthCheckResult;
+import interfaces.OffenderApi;
+import interfaces.PdfGenerator;
 import lombok.Value;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
+import play.i18n.MessagesApi;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
@@ -44,31 +49,25 @@ public class UtilityController extends Controller {
     private final Map<Definition, Supplier<CompletableFuture<HealthCheckResult>>> healthChecks;
 
     private final Config configuration;
+	private final MessagesApi messagesApi;
     private final OffenderApi offenderApi; // Used by searchDb and searchLdap
 
     @Inject
     public UtilityController(PdfGenerator pdfGenerator,
                              DocumentStore documentStore,
-                             OffenderSearch offenderSearch,
                              OffenderApi offenderApi,
-                             PrisonerApi prisonerApi,
-                             PrisonerCategoryApi prisonerCategoryApi,
-                             PrisonerApiToken prisonerApiToken,
-                             Config configuration) {
-
+                             Config configuration,
+                             MessagesApi messagesApi) {
         this.offenderApi = offenderApi; // Used by searchDb and searchLdap, so stored directly for later, others are closed over below
 
-        healthChecks = ImmutableMap.<Definition, Supplier<CompletableFuture<HealthCheckResult>>>builder().
+		healthChecks = ImmutableMap.<Definition, Supplier<CompletableFuture<HealthCheckResult>>>builder().
                 put(definition("pdf-generator", true), () -> pdfGenerator.isHealthy().toCompletableFuture()).
                 put(definition("document-store", true), () -> documentStore.isHealthy().toCompletableFuture()).
-                put(definition("offender-search", true), () -> offenderSearch.isHealthy().toCompletableFuture()).
                 put(definition("offender-api", true), () -> offenderApi.isHealthy().toCompletableFuture()).
-                put(definition("custody-api", true), () -> prisonerApi.isHealthy().toCompletableFuture()).
-                put(definition("elite2-api", true), () -> prisonerCategoryApi.isHealthy().toCompletableFuture()).
-                put(definition("nomis-authentication-api", true), () -> prisonerApiToken.isHealthy().toCompletableFuture()).
                 build();
 
         this.configuration = configuration;
+        this.messagesApi = messagesApi;
     }
 
     public CompletionStage<Result> healthcheck(boolean details) {
@@ -125,36 +124,15 @@ public class UtilityController extends Controller {
         return status ? "OK" : "FAILED";
     }
 
-    public CompletionStage<Result> searchDb() {
-
-        return offenderApi.searchDb(getQueryParams()).thenApply(JsonHelper::okJson);
-    }
-
-    public CompletionStage<Result> apiLogon() {
+    public CompletionStage<Result> apiLogon(Http.Request request) {
 
         val userPass = String.format("%s:%s", configuration.getString("auth.feedback.user"), configuration.getString("auth.feedback.password"));
         val required = Base64.getEncoder().encodeToString(userPass.getBytes());
-        val supplied = request().header(AUTHORIZATION).orElse("").substring(6);
+        val supplied = request.header(AUTHORIZATION).orElse("").substring(6);
 
         return supplied.equals(required) ?
-                offenderApi.logon(request().body().asText()).thenApply(Results::ok) :
+                offenderApi.logon(request.body().asText()).thenApply(Results::ok) :
                 CompletableFuture.supplyAsync(Results::unauthorized);
-    }
-
-    public CompletionStage<Result> apiCall(String url) {
-
-        return offenderApi.callOffenderApi(request().header(AUTHORIZATION).orElse(""), url).thenApply(Results::ok);
-    }
-
-    public CompletionStage<Result> searchLdap() {
-
-        return offenderApi.searchLdap(getQueryParams()).thenApply(JsonHelper::okJson);
-    }
-
-    private Map<String, String> getQueryParams() {
-
-        return request().queryString().entrySet().stream().
-                collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue()[0]));
     }
 
     private Map<String, Object> runtimeInfo() {

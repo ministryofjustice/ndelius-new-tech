@@ -1,10 +1,18 @@
 import com.google.inject.AbstractModule;
 import com.mongodb.rx.client.MongoClient;
-import injection.*;
-import interfaces.*;
+import injection.DocumentStoreProvider;
+import injection.MongoClientProvider;
+import injection.OffenderApiProvider;
+import injection.RestClientBuilderProvider;
+import injection.RestHighLevelClientProvider;
+import interfaces.DocumentStore;
+import interfaces.OffenderApi;
+import interfaces.PdfGenerator;
+import interfaces.UserAwareApiToken;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
-import services.*;
+import services.RestPdfGenerator;
+import services.UserAwareAuthenticationApi;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -22,12 +30,8 @@ public class Module extends AbstractModule {
     public void configure() {
 
         bind(PdfGenerator.class).to(RestPdfGenerator.class);
-        bind(OffenderSearch.class).toProvider(OffenderSearchProvider.class);
         bind(UserAwareApiToken.class).to(UserAwareAuthenticationApi.class);
 
-        bind(PrisonerApi.class).toProvider(PrisonerApiProvider.class);
-        bind(PrisonerCategoryApi.class).toProvider(PrisonerCategoryApiProvider.class);
-        bind(PrisonerApiToken.class).toProvider(PrisonerApiTokenProvider.class);
         bind(DocumentStore.class).toProvider(DocumentStoreProvider.class);
         bind(OffenderApi.class).toProvider(OffenderApiProvider.class);
         bind(RestClientBuilder.class).toProvider(RestClientBuilderProvider.class);

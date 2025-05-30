@@ -2,20 +2,18 @@ package helpers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.val;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
+
 import static play.mvc.Http.Status.SERVICE_UNAVAILABLE;
-import static play.mvc.Results.badRequest;
-import static play.mvc.Results.ok;
-import static play.mvc.Results.status;
+import static play.mvc.Results.*;
 
 public interface JsonHelper {
 
@@ -82,7 +80,7 @@ public interface JsonHelper {
         return Json.fromJson(Json.parse(json), clazz);
     }
 
-    static <T> T readValue(String json, TypeReference type) {
+    static <T> T readValue(String json, TypeReference<T> type) {
         try {
             return Json.mapper().readValue(json, type);
         } catch(Exception e) {

@@ -10,7 +10,7 @@
 @import menu._
 @import fragment._
 
-@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config)
+@(reportForm: Form[ShortFormatPreSentenceReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config, request: Http.Request, messagesProvider: MessagesProvider)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 
@@ -42,7 +42,7 @@
 
     <div class="margin-top medium">&nbsp;</div>
 
-    @helper.form(action = relative(routes.ShortFormatPreSentenceReportController.wizardPost()), 'id -> "ndForm", 'novalidate -> "") {
+    @helper.form(action = relative(request, routes.ShortFormatPreSentenceReportController.wizardPost), 'id -> "ndForm", 'novalidate -> "") {
         @CSRF.formField
         @commonFields(reportForm, encrypter)
 

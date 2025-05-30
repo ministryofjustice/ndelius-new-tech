@@ -3,46 +3,22 @@
 # ~~~~
 
 GET     /healthcheck                                controllers.UtilityController.healthcheck(detail: Boolean ?= false)
-GET     /utility/searchDb                           controllers.UtilityController.searchDb
-GET     /utility/searchLdap                         controllers.UtilityController.searchLdap
 + nocsrf
-POST    /api/logon                                  controllers.UtilityController.apiLogon
-GET     /api/*url                                   controllers.UtilityController.apiCall(url)
+POST    /api/logon                                  controllers.UtilityController.apiLogon(request: Request)
 
-GET     /nationalSearch                             controllers.NationalSearchController.index(user: String, t: String)
-GET     /searchOffender/:searchTerm                 controllers.NationalSearchController.searchOffender(searchTerm, searchType: String, areasFilter: java.util.Optional[String], pageSize: Int ?=10, pageNumber: Int ?=1)
-+ nocsrf
-POST    /findDefendantMatch                         controllers.CourtDefendantMatchController.findDefendantMatch()
-GET     /courtDefendantMatch                        controllers.CourtDefendantMatchController.index()
-POST     /courtDefendantMatch                        controllers.CourtDefendantMatchController.search()
-
-GET     /offender/oneTimeNomisRef/:reference/image  controllers.OffenderController.image(reference: String)
-GET     /offender/detail                            controllers.OffenderController.detail
-GET     /offender/registrations                     controllers.OffenderController.registrations
-GET     /offender/convictions                       controllers.OffenderController.convictions
-GET     /offender/nextAppointment                   controllers.OffenderController.nextAppointment
-GET     /offender/personalCircumstances                   controllers.OffenderController.personalCircumstances
-
-GET     /report/shortFormatPreSentenceReport        controllers.ShortFormatPreSentenceReportController.wizardGet
-POST    /report/shortFormatPreSentenceReport        controllers.ShortFormatPreSentenceReportController.wizardPost
-POST    /report/shortFormatPreSentenceReport/save   controllers.ShortFormatPreSentenceReportController.reportPost
+GET     /report/shortFormatPreSentenceReport        controllers.ShortFormatPreSentenceReportController.wizardGet(request: Request)
+POST    /report/shortFormatPreSentenceReport        controllers.ShortFormatPreSentenceReportController.wizardPost(request: Request)
+POST    /report/shortFormatPreSentenceReport/save   controllers.ShortFormatPreSentenceReportController.reportPost(request: Request)
 GET     /report/shortFormatPreSentenceReport/get    controllers.ShortFormatPreSentenceReportController.getPdf(documentId: String, onBehalfOfUser: String)
 
-GET     /report/paroleParom1Report                      controllers.ParoleParom1ReportController.wizardGet
-POST    /report/paroleParom1Report                      controllers.ParoleParom1ReportController.wizardPost
-POST    /report/paroleParom1Report/save                 controllers.ParoleParom1ReportController.reportPost
-GET     /report/paroleParom1Report/get                  controllers.ParoleParom1ReportController.getPdf(documentId: String, onBehalfOfUser: String)
-GET     /report/analyticsTester                        controllers.ParoleParom1ReportController.analyticsTester
-
-GET     /report/oralReport                          controllers.OralReportController.wizardGet
-POST    /report/oralReport                          controllers.OralReportController.wizardPost
-POST    /report/oralReport/save                     controllers.OralReportController.reportPost
+GET     /report/oralReport                          controllers.OralReportController.wizardGet(request: Request)
+POST    /report/oralReport                          controllers.OralReportController.wizardPost(request: Request)
+POST    /report/oralReport/save                     controllers.OralReportController.reportPost(request: Request)
 GET     /report/oralReport/get                      controllers.OralReportController.getPdf(documentId: String, onBehalfOfUser: String)
 
-GET     /offenderSummary                             controllers.OffenderSummaryController.index(offenderId: String, user: java.util.Optional[String], t: java.util.Optional[String])
-GET     /features                                    controllers.FeaturesController.index()
+GET     /features                                    controllers.FeaturesController.index(request: Request)
 + nocsrf
-POST    /spellcheck                                 controllers.TinyMCESpellCheckerController.findSpellings()
+POST    /spellcheck                                 controllers.TinyMCESpellCheckerController.findSpellings(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                           controllers.Assets.versioned(path="/public", file: Asset)

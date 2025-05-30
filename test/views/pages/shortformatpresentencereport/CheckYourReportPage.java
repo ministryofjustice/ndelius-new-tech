@@ -29,7 +29,7 @@ public class CheckYourReportPage extends ShortFormatPreSentencePopupReportPage {
     }
 
     public String statusForOffenderAssessment() {
-        return $(xpath("//tr[.//a[text()='Offender assessment']]//strong")).text();
+        return $(xpath("//tr[.//a[text()='Offender assessment']]//strong")).first().text();
     }
 
     public void clickOffenderDetailsLink() {

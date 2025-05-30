@@ -6,7 +6,7 @@ const initProgressiveRadioButtons = () => {
 
     const $inputs = $module.querySelectorAll('input[type="radio"]')
     nodeListForEach($inputs, $input => {
-      let controls = $input.getAttribute('data-aria-controls')
+      let controls = $input.getAttribute('aria-controls')
       controls = controls ? controls.substr(0, controls.lastIndexOf('-')) + '-progressive' : ''
 
       // Check if input controls anything and content exists.
@@ -14,7 +14,7 @@ const initProgressiveRadioButtons = () => {
         return
       }
 
-      $input.setAttribute('data-aria-controls', controls)
+      $input.setAttribute('aria-controls', controls)
       $input.removeAttribute('_')
       $input.addEventListener('click', () => {
         activate(controls)

@@ -8,7 +8,7 @@
 @import menu._
 @import fragment._
 
-@(reportForm: Form[OralReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config)
+@(reportForm: Form[OralReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config, request: Http.Request, messagesProvider: MessagesProvider)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 
@@ -24,7 +24,7 @@
     'required -> "true",
     '_date -> "true",
     '_form_hint -> "For example, 31 3 1980",
-    '_day -> reportForm("reportDate_day").getValue.orElse(""),
-    '_month -> reportForm("reportDate_month").getValue.orElse(""),
-    '_year -> reportForm("reportDate_year").getValue.orElse(""))
+    '_day -> reportForm("reportDate_day").value().orElse(""),
+    '_month -> reportForm("reportDate_month").value().orElse(""),
+    '_year -> reportForm("reportDate_year").value().orElse(""))
 }

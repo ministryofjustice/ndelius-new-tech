@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-slim
+FROM openjdk:21-slim
 
 RUN apt-get update && \
     apt-get install -y curl jq && \
@@ -9,7 +9,7 @@ RUN addgroup --gid 2000 --system appgroup && \
 USER 2000
 
 WORKDIR /app
-COPY target/scala-2.12/ndelius2-*.jar /app/app.jar
+COPY target/scala-2.13/ndelius2-*.jar /app/app.jar
 
 EXPOSE 9000
 

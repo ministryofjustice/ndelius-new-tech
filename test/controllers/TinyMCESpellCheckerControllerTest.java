@@ -23,7 +23,7 @@ public class TinyMCESpellCheckerControllerTest extends WithApplication {
         val content = Helpers.contentAsString(result);
         assertEquals(OK, result.status());
 
-        val expectedSuggestions = asNormalisedJson(  "{ \"result\" : { \"words\" : { \"speeling\" : [\"spelling\", \"speeding\", \"peeling\", \"steeling\", \"spieling\", \"s peeling\"],\"misteke\" : [\"mistake\", \"mist eke\"] } } }");
+        val expectedSuggestions = asNormalisedJson("{\"result\":{\"words\":{\"speeling\":[\"Spelling\",\"Speeding\",\"Peeling\",\"Steeling\",\"Spieling\"],\"misteke\":[\"mistake\",\"mist eke\"]}}}");
         assertEquals(expectedSuggestions, content);
     }
 

@@ -14,10 +14,15 @@ import org.joda.time.DateTime;
 import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.Logger;
+import play.api.i18n.MessagesProvider;
 import play.data.Form;
 import play.data.validation.ValidationError;
+import play.i18n.Lang;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.libs.typedmap.TypedMap;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.twirl.api.Content;
 import play.twirl.api.Txt;
@@ -27,7 +32,11 @@ import scala.compat.java8.functionConverterImpls.FromJavaFunction;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -39,6 +48,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static controllers.SessionKeys.OFFENDER_API_BEARER_TOKEN;
 import static helpers.FluentHelper.content;
 
 public abstract class WizardController<T extends WizardData> extends Controller implements ParamsValidator {
@@ -53,12 +63,14 @@ public abstract class WizardController<T extends WizardData> extends Controller 
     protected final Function<String, String> decrypter;
     protected final HttpExecutionContext ec;
     protected final Config configuration;
-    protected final OffenderApi offenderApi;
+    protected final MessagesApi messagesApi;
+	protected final OffenderApi offenderApi;
 
     protected WizardController(HttpExecutionContext ec,
                                WebJarsUtil webJarsUtil,
                                Config configuration,
                                Environment environment,
+                               MessagesApi messagesApi,
                                EncryptedFormFactory formFactory,
                                Class<T> wizardType,
                                OffenderApi offenderApi) {
@@ -67,7 +79,8 @@ public abstract class WizardController<T extends WizardData> extends Controller 
         this.webJarsUtil = webJarsUtil;
         this.environment = environment;
         this.configuration = configuration;
-        this.offenderApi = offenderApi;
+		this.messagesApi = messagesApi;
+		this.offenderApi = offenderApi;
 
         wizardForm = formFactory.form(wizardType, this::decryptParams);
         encryptedFields = newWizardData().encryptedFields().map(Field::getName).collect(Collectors.toList());
@@ -80,23 +93,26 @@ public abstract class WizardController<T extends WizardData> extends Controller 
         viewEncrypter = new FromJavaFunction(encrypter); // Use Scala functions in the view.scala.html markup
     }
 
-    public final CompletionStage<Result> wizardGet() {
+    public final CompletionStage<Result> wizardGet(Http.Request request) {
 
-        return initialParams().thenApplyAsync(params -> {
+        return initialParams(request).thenApplyAsync(params -> {
 
             val errorMessage = params.get("errorMessage");
 
             if (Strings.isNullOrEmpty(errorMessage)) {
 
-                val boundForm = wizardForm.bind(params);
+                val boundForm = wizardForm.bind(Lang.defaultLang(), TypedMap.empty(), params);
                 val thisPage = boundForm.value().map(WizardData::getPageNumber).orElse(1);
                 val pageStatuses = getPageStatuses(boundForm.value(), thisPage, null);
 
-                return ok(renderPage(thisPage, boundForm, pageStatuses));
+                var result = ok(renderPage(request, thisPage, boundForm, pageStatuses));
+                if (params.containsKey(OFFENDER_API_BEARER_TOKEN)) {
+                    return result.addingToSession(request, OFFENDER_API_BEARER_TOKEN, params.get(OFFENDER_API_BEARER_TOKEN));
+                } else return result;
 
             } else {
 
-                return badRequest(renderErrorMessage(errorMessage));
+                return badRequest(renderErrorMessage(errorMessage, request));
             }
 
         }, ec.current()).
@@ -109,20 +125,20 @@ public abstract class WizardController<T extends WizardData> extends Controller 
                         return ((InvalidCredentialsException) throwable.getCause()).getErrorResult();
                     }
 
-                    return internalServerError(renderErrorMessage("We are unable to process your request. Please try again later."));
+                    return internalServerError(renderErrorMessage("We are unable to process your request. Please try again later.", request));
                 }).orElse(result), ec.current());
     }
 
-    public final CompletionStage<Result> wizardPost() {
+    public final CompletionStage<Result> wizardPost(Http.Request request) {
 
-        val boundForm = wizardForm.bindFromRequest();
+        val boundForm = wizardForm.bindFromRequest(request);
         val thisPage = boundForm.value().map(WizardData::getPageNumber).orElse(1);
         val visitedPages = new StringBuilder();
         val pageStatuses = getPageStatuses(boundForm.value(), thisPage, visitedPages);
 
         if (boundForm.hasErrors()) {
 
-            val errorPage = boundForm.allErrors().stream().map(ValidationError::key).findFirst().
+            val errorPage = allErrors(boundForm).stream().map(ValidationError::key).findFirst().
                     flatMap(field -> boundForm.value().flatMap(wizardData -> wizardData.getField(field))).
                     map(WizardData::fieldPage).orElse(thisPage);
 
@@ -131,8 +147,8 @@ public abstract class WizardController<T extends WizardData> extends Controller 
             errorData.put("visitedPages", visitedPages.toString());
 
             return CompletableFuture.supplyAsync(() -> {
-                Logger.debug("Bad data posted to wizard: " + boundForm.allErrors());
-                return badRequest(renderPage(errorPage, wizardForm.bind(errorData), pageStatuses));
+                Logger.debug("Bad data posted to wizard: " + allErrors(boundForm));
+                return badRequest(renderPage(request, errorPage, wizardForm.bind(Lang.defaultLang(), TypedMap.empty(), errorData), pageStatuses));
             }, ec.current());
 
         } else {
@@ -142,23 +158,29 @@ public abstract class WizardController<T extends WizardData> extends Controller 
 
             wizardData.setVisitedPages(visitedPages.toString());
 
+            String id;
             if (nextPage < 1 || nextPage > wizardData.totalPages()) {
-                renderingData(wizardData);
+                id = renderingData(request, wizardData);
             } else {
-                wizardData.setPageNumber(nextPage); // Only store real page values as is persisted to Alfresco for re-edit
+				wizardData.setPageNumber(nextPage); // Only store real page values as is persisted to Alfresco for re-edit
+				id = null;
             }
 
             return nextPage <= wizardData.totalPages() ?
                     nextPage > 0 ?
-                            CompletableFuture.supplyAsync(() -> ok(renderPage(nextPage, wizardForm.fill(wizardData), pageStatuses)), ec.current()) :
-                            cancelledWizard(wizardData) :
-                    completedWizard(wizardData);
+                            CompletableFuture.supplyAsync(() -> {
+                                Result result = ok(renderPage(request, nextPage, wizardForm.fill(wizardData), pageStatuses));
+                                if (id != null) result = result.addingToSession(request, "id", id);
+                                return result;
+                            }, ec.current()) :
+                            cancelledWizard(request, wizardData) :
+                    completedWizard(request, wizardData);
         }
     }
 
-    protected CompletionStage<Map<String, String>> initialParams() { // Overridable in derived Controllers to supplant initial params
+    protected CompletionStage<Map<String, String>> initialParams(Http.Request request) { // Overridable in derived Controllers to supplant initial params
 
-        val params = request().queryString().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue()[0]));
+        val params = request.queryString().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue()[0]));
         return CompletableFuture.supplyAsync(() -> decryptParams(params), ec.current());
     }
 
@@ -174,47 +196,43 @@ public abstract class WizardController<T extends WizardData> extends Controller 
 
     protected abstract String baseViewName();
 
-    protected abstract CompletionStage<Result> completedWizard(T wizardData);
+    protected abstract CompletionStage<Result> completedWizard(Http.Request request, T wizardData);
 
-    protected abstract CompletionStage<Result> cancelledWizard(T wizardData);
+    protected abstract CompletionStage<Result> cancelledWizard(Http.Request request, T wizardData);
 
-    protected final Result wizardFailed(T wizardData) {
+    protected final Result wizardFailed(Http.Request request, T wizardData) {
 
         val formData = wizardForm.fill(wizardData);
 
-        return badRequest(renderPage(wizardData.totalPages(), formData,
+        return badRequest(renderPage(request, wizardData.totalPages(), formData,
                 getPageStatuses(formData.value(), wizardData.getPageNumber(), null)));
     }
 
-    protected void renderingData(T wizardData) {
-
-        if (isNullOrEmpty(session("id"))) {
-            session("id", UUID.randomUUID().toString());
-        }
+    protected String renderingData(Http.Request request, T wizardData) {
+        val id = request.session().get("id").orElseGet(() -> UUID.randomUUID().toString());
 
         val eventData = new HashMap<String, Object>()
         {
             {
                 put("username", wizardData.getOnBehalfOfUser());
-                put("sessionId", session("id"));
+                put("sessionId", id);
                 put("pageNumber", wizardData.getPageNumber());
                 put("dateTime", DateTime.now().toDate());
             }
         };
 
         Logger.info("Session: " + eventData.get("sessionId") + " - Page: " + eventData.get("pageNumber") + " - " + eventData.get("dateTime"));
+        return id;
     }
 
-    protected BiFunction<Form<T>, Map<Integer, PageStatus>, Content> formRenderer(String viewName) {
-
-        val render = getRenderMethod(viewName, Form.class, Function1.class, Map.class, WebJarsUtil.class, Environment.class, Config.class);
+    protected BiFunction<Form<T>, Map<Integer, PageStatus>, Content> formRenderer(Http.Request request, String viewName) {
+        val render = getRenderMethod(viewName, Form.class, Function1.class, Map.class, WebJarsUtil.class, Environment.class, Config.class, Http.Request.class, MessagesProvider.class);
 
         return (form, pageStatuses) -> {
 
-            renderingData(form.value().orElseGet(this::newWizardData));
+            renderingData(request, form.value().orElseGet(this::newWizardData));
 
-            return render.map(method -> invokeContentMethod(method, form, viewEncrypter, pageStatuses, webJarsUtil, environment, configuration)).orElseGet(() -> {
-
+            return render.map(method -> invokeContentMethod(method, form, viewEncrypter, pageStatuses, webJarsUtil, environment, configuration, request, messagesApi.preferred(request))).orElseGet(() -> {
                 val errorMessage = new StringBuilder();
 
                 errorMessage.append("Form Renderer Error\n");
@@ -223,12 +241,12 @@ public abstract class WizardController<T extends WizardData> extends Controller 
                 errorMessage.append(form.rawData());
 
                 Logger.error(errorMessage.toString());
-                return renderErrorMessage(errorMessage.toString());
+                return renderErrorMessage(errorMessage.toString(), request);
             });
         };
     }
 
-    protected Content renderErrorMessage(String errorMessage) {
+    protected Content renderErrorMessage(String errorMessage, Http.Request request) {
 
         return Txt.apply(errorMessage);
     }
@@ -272,9 +290,9 @@ public abstract class WizardController<T extends WizardData> extends Controller 
         return baseViewName() + pageNumber;
     }
 
-    private Content renderPage(int pageNumber, Form<T> formContent, Map<Integer, PageStatus> pageStatuses) {
+    private Content renderPage(Http.Request request, int pageNumber, Form<T> formContent, Map<Integer, PageStatus> pageStatuses) {
 
-        return formRenderer(viewPageName(pageNumber)).apply(formContent, pageStatuses);
+        return formRenderer(request, viewPageName(pageNumber)).apply(formContent, pageStatuses);
     }
 
     private Map<String, String> decryptParams(Map<String, String> params) {
@@ -317,5 +335,9 @@ public abstract class WizardController<T extends WizardData> extends Controller 
             Logger.error("Unable to Invoke Method: " + method.getName(), ex);
             return content(ex);
         }
+    }
+
+    public static List<ValidationError> allErrors(Form<?> form) {
+        return Stream.concat(form.errors().stream(), form.globalErrors().stream()).collect(Collectors.toList());
     }
 }

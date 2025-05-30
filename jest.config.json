@@ -1,0 +1,8 @@
+{
+    "verbose": true,
+    "setupFiles": [
+        "<rootDir>/__mocks__/matchMediaMock.js"
+    ],
+    "testEnvironment": "jsdom",
+    "testMatch": ["**/app/assets/**/*.test.js"]
+}

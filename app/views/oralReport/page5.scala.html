@@ -7,7 +7,7 @@
 @import org.webjars.play.WebJarsUtil
 @import fragment._
 
-@(reportForm: Form[OralReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config)
+@(reportForm: Form[OralReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config, request: Http.Request, messagesProvider: MessagesProvider)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 
@@ -55,7 +55,7 @@
 
 <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible govuk-!-margin-top-0"/>
 
-<div class="govuk-form-group" data-module="radios">
+<div class="govuk-form-group" data-module="govuk-radios">
     <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-label">
             Is current offending part of a pattern of offending behaviour?
@@ -74,7 +74,7 @@
 
 <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible govuk-!-margin-top-0"/>
 
-<div class="govuk-form-group" data-module="radios">
+<div class="govuk-form-group" data-module="govuk-radios">
     <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-label">
             Does current offending represent an escalation in seriousness?

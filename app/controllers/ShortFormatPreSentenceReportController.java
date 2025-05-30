@@ -8,7 +8,11 @@ import controllers.base.ReportGeneratorWizardController;
 import data.ShortFormatPreSentenceReportData;
 import interfaces.DocumentStore;
 import interfaces.OffenderApi;
-import interfaces.OffenderApi.*;
+import interfaces.OffenderApi.Court;
+import interfaces.OffenderApi.CourtAppearances;
+import interfaces.OffenderApi.CourtReport;
+import interfaces.OffenderApi.Offences;
+import interfaces.OffenderApi.Offender;
 import interfaces.PdfGenerator;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +20,9 @@ import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.Logger;
 import play.data.Form;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http;
 import play.twirl.api.Content;
 
 import javax.inject.Inject;
@@ -27,7 +33,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 
-import static controllers.SessionKeys.OFFENDER_API_BEARER_TOKEN;
 import static helpers.DateTimeHelper.*;
 import static java.time.Clock.systemUTC;
 import static java.util.Optional.ofNullable;
@@ -36,23 +41,27 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
 
     private final views.html.shortFormatPreSentenceReport.cancelled cancelledTemplate;
     private final views.html.shortFormatPreSentenceReport.completed completedTemplate;
+	private final views.html.helper.error errorTemplate;
 
-    @Inject
+	@Inject
     public ShortFormatPreSentenceReportController(HttpExecutionContext ec,
                                                   WebJarsUtil webJarsUtil,
                                                   Config configuration,
                                                   Environment environment,
+                                                  MessagesApi messagesApi,
                                                   EncryptedFormFactory formFactory,
                                                   PdfGenerator pdfGenerator,
                                                   DocumentStore documentStore,
                                                   views.html.shortFormatPreSentenceReport.cancelled cancelledTemplate,
                                                   views.html.shortFormatPreSentenceReport.completed completedTemplate,
+                                                  views.html.helper.error errorTemplate,
                                                   OffenderApi offenderApi) {
 
-        super(ec, webJarsUtil, configuration, environment, formFactory, ShortFormatPreSentenceReportData.class, pdfGenerator, documentStore, offenderApi);
+        super(ec, webJarsUtil, configuration, environment, messagesApi, formFactory, ShortFormatPreSentenceReportData.class, pdfGenerator, documentStore, offenderApi);
         this.cancelledTemplate = cancelledTemplate;
         this.completedTemplate = completedTemplate;
-    }
+		this.errorTemplate = errorTemplate;
+	}
 
     @Override
     protected String templateName() {
@@ -117,16 +126,17 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
 
 
     @Override
-    protected CompletionStage<Map<String, String>> initialParams() {
-        return super.initialParams().thenApply(params -> {
+    protected CompletionStage<Map<String, String>> initialParams(Http.Request request) {
+        return super.initialParams(request).thenApply(params -> {
             params.putIfAbsent("pncSupplied", Boolean.valueOf(!Strings.isNullOrEmpty(params.get("pnc"))).toString());
             params.putIfAbsent("addressSupplied", Boolean.valueOf(!Strings.isNullOrEmpty(params.get("address"))).toString());
             return migrateLegacyReport(params);
         }).thenComposeAsync(params -> {
             val crn = params.get("crn");
-            val courtAppearancesFuture = offenderApi.getCourtAppearancesByCrn(session(OFFENDER_API_BEARER_TOKEN), crn).toCompletableFuture();
-            val offencesFuture =  offenderApi.getOffencesByCrn(session(OFFENDER_API_BEARER_TOKEN), crn).toCompletableFuture();
-            val courtReportFuture = offenderApi.getCourtReportByCrnAndCourtReportId(session(OFFENDER_API_BEARER_TOKEN), crn, params.get("entityId")).toCompletableFuture();
+            val token = getToken(params);
+            val courtAppearancesFuture = offenderApi.getCourtAppearancesByCrn(token, crn).toCompletableFuture();
+            val offencesFuture =  offenderApi.getOffencesByCrn(token, crn).toCompletableFuture();
+            val courtReportFuture = offenderApi.getCourtReportByCrnAndCourtReportId(token, crn, params.get("entityId")).toCompletableFuture();
 
             return CompletableFuture.allOf(courtAppearancesFuture, offencesFuture, courtReportFuture)
                     .thenApplyAsync(notUsed ->
@@ -217,19 +227,19 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
     }
 
     @Override
-    protected Content renderCancelledView() {
+    protected Content renderCancelledView(Http.Request request) {
 
-        val boundForm = wizardForm.bindFromRequest();
+        val boundForm = wizardForm.bindFromRequest(request);
 
-        return cancelledTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm));
+        return cancelledTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm), request);
     }
 
     @Override
-    protected Content renderCompletedView(Byte[] bytes) {
+    protected Content renderCompletedView(Http.Request request, Byte[] bytes) {
 
-        val boundForm = wizardForm.bindFromRequest();
+        val boundForm = wizardForm.bindFromRequest(request);
 
-        return completedTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm));
+        return completedTemplate.render(boundForm, viewEncrypter, reviewPageNumberFor(boundForm), request);
     }
 
     private Integer reviewPageNumberFor(Form<ShortFormatPreSentenceReportData> boundForm) {
@@ -237,9 +247,9 @@ public class ShortFormatPreSentenceReportController extends ReportGeneratorWizar
     }
 
     @Override
-    protected Content renderErrorMessage(String errorMessage) {
+    protected Content renderErrorMessage(String errorMessage, Http.Request request) {
 
-        return views.html.helper.error.render("Error - Short Format Pre Sentence Report", errorMessage, webJarsUtil, configuration);
+        return errorTemplate.render("Error - Short Format Pre Sentence Report", errorMessage, request);
     }
 
     protected List<String> paramsToBeLogged() {

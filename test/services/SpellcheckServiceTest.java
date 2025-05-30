@@ -18,7 +18,7 @@ public class SpellcheckServiceTest {
         String wordsToCheck = "speeling misteke";
         String spellcheckSuggestionsString = spellcheckService.getSpellCheckSuggestions(wordsToCheck);
 
-        String expectedSuggestions = "{ \"result\" : { \"words\" : { \"speeling\" : [\"spelling\", \"speeding\", \"peeling\", \"steeling\", \"spieling\", \"s peeling\"],\"misteke\" : [\"mistake\", \"mist eke\"] } } }";
+        String expectedSuggestions = "{ \"result\" : { \"words\" : { \"speeling\" : [\"Spelling\", \"Speeding\", \"Peeling\", \"Steeling\", \"Spieling\"],\"misteke\" : [\"mistake\", \"mist eke\"] } } }";
         assertThat(spellcheckSuggestionsString).isEqualTo(expectedSuggestions);
     }
 

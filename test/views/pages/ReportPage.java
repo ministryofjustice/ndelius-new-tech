@@ -1,18 +1,15 @@
 package views.pages;
 
+import io.fluentlenium.core.FluentPage;
+import io.fluentlenium.core.domain.FluentWebElement;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
-import org.fluentlenium.core.FluentPage;
-import org.fluentlenium.core.domain.FluentWebElement;
 import org.openqa.selenium.By;
 import play.test.TestBrowser;
 
 import javax.inject.Inject;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static org.openqa.selenium.By.*;
-import static org.openqa.selenium.By.id;
 
 public class ReportPage extends FluentPage {
 
@@ -48,43 +45,46 @@ public class ReportPage extends FluentPage {
     }
 
     public void fillTextArea(String label, String text) {
-        String fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).attribute("for");
+        String fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).first().attribute("for");
         this.fillTextAreaById(fieldId, text);
     }
 
     public void fillClassicTextArea(String label, String text) {
-        val fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).attribute("for");
+        val fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).first().attribute("for");
         $(name(fieldId)).fill().with(text);
     }
 
     public void fillInput(String label, String text) {
-        String fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).attribute("for");
+        String fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).first().attribute("for");
         this.fillInputWithId(fieldId, text);
     }
 
     public void fillInputWithId(String fieldId, String text) {
-        $(id(fieldId)).fill().with(text);
+        $(id(fieldId)).fill().with(Optional.ofNullable(text).orElse(""));
         control.executeScript(String.format("document.getElementById('%s').blur()", fieldId));
     }
 
     public void fillInputInSectionWithLegend(String legend, String label, String text) {
-        String fieldId = findSectionFromLegend(legend).find(xpath(String.format(".//label[contains(., '%s')]", label))).attribute("for");
+        String fieldId = findSectionFromLegend(legend).find(xpath(String.format(".//label[contains(., '%s')]", label))).first().attribute("for");
         this.fillInputWithId(fieldId, text);
     }
 
     public String fieldNameFromLabel(String label) {
-        val fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).attribute("for");
-        return Optional.ofNullable(fieldId).orElseGet(() -> Optional.ofNullable(dateGroupFieldIdFromLegend(label)).orElseGet(() -> radioFieldNameFromLegend(label)));
+        val fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).stream().findAny()
+                .map(el -> el.attribute("for"));
+        return fieldId.orElseGet(() -> dateGroupFieldIdFromLegend(label).orElseGet(() -> radioFieldNameFromLegend(label).orElseThrow()));
     }
 
-    private String radioFieldNameFromLegend(String legend) {
+    private Optional<String> radioFieldNameFromLegend(String legend) {
         // find any radio input within section with legend - we just need the name of form field name
-        return findSectionFromLegend(legend).find(By.cssSelector("input[type='radio']")).attribute("name");
+        return findSectionFromLegend(legend).find(By.cssSelector("input[type='radio']")).stream().findAny()
+                .map(el -> el.attribute("name"));
     }
 
-    private String dateGroupFieldIdFromLegend(String legend) {
+    private Optional<String> dateGroupFieldIdFromLegend(String legend) {
         // find any radio input within section with legend - we just need the name of form field name
-        return findSectionFromLegend(legend).find(By.cssSelector(".govuk-date-input")).attribute("id");
+        return findSectionFromLegend(legend).find(By.cssSelector(".govuk-date-input")).stream().findAny()
+                .map(el -> el.attribute("id"));
     }
 
     public void clickElementWithId(String id) {
@@ -98,7 +98,7 @@ public class ReportPage extends FluentPage {
 
     private String fieldNameFromLabelWithLegend(String label, String legend) {
         return findSectionFromLegend(legend)
-                .find(xpath(String.format(".//label[contains(.,'%s')]", label)))
+                .find(xpath(String.format(".//label[contains(.,'%s')]", label))).first()
                 .attribute("for");
     }
 
@@ -107,11 +107,11 @@ public class ReportPage extends FluentPage {
     }
 
     public String errorMessage(String name) {
-        return $(xpath(String.format("//a[@href='#%s-error']", name))).text();
+        return $(xpath(String.format("//a[@href='#%s-error']", name))).first().text();
     }
 
     public void clickCheckboxWithLabel(String label) {
-        val fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).attribute("for");
+        val fieldId = $(xpath(String.format("//label[span[text()='%s']]", label))).first().attribute("for");
         $(id(fieldId)).first().click();
     }
 
@@ -138,11 +138,11 @@ public class ReportPage extends FluentPage {
     public String statusTextForPage(String pageName) {
         val row = $(By.linkText(pageName)).find(By.xpath("../.."));
         val statusCell = row.find(By.cssSelector("td:nth-child(2)"));
-        return statusCell.text();
+        return statusCell.first().text();
     }
 
     public String getPageTextByClassName(String className) {
-        return $(By.className(className)).text();
+        return $(By.className(className)).first().text();
     }
 
     public boolean hasSectionWithClassName(String className) {

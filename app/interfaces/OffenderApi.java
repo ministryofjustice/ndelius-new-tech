@@ -1,9 +1,9 @@
 package interfaces;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import lombok.Builder;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 import lombok.val;
 
 import java.util.Comparator;
@@ -23,6 +23,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public interface OffenderApi {
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class Offender {
         private String firstName;
@@ -41,6 +42,7 @@ public interface OffenderApi {
     }
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class ContactDetails {
         private List<OffenderAddress> addresses;
@@ -55,6 +57,7 @@ public interface OffenderApi {
     }
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class OffenderAddress {
         private String buildingName;
@@ -83,6 +86,7 @@ public interface OffenderApi {
     }
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class AddressStatus {
         private String code;
@@ -90,6 +94,7 @@ public interface OffenderApi {
     }
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class CourtAppearances {
         @Builder.Default private List<CourtAppearance> items = ImmutableList.of();
@@ -106,6 +111,7 @@ public interface OffenderApi {
     }
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class CourtAppearance {
         private Long courtAppearanceId;
@@ -129,6 +135,7 @@ public interface OffenderApi {
     }
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class Court {
         private Long courtId;
@@ -137,6 +144,7 @@ public interface OffenderApi {
     }
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class CourtReport {
         private Long courtReportId;
@@ -146,6 +154,7 @@ public interface OffenderApi {
 
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class Offences {
         @Builder.Default private List<Offence> items = ImmutableList.of();
@@ -171,6 +180,7 @@ public interface OffenderApi {
     }
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class Offence {
         private String offenceId;
@@ -205,6 +215,7 @@ public interface OffenderApi {
     }
 
     @Value
+    @Jacksonized
     @Builder(toBuilder = true)
     class OffenceDetail {
         private String code;
@@ -217,6 +228,7 @@ public interface OffenderApi {
 
     @Value
     @Builder
+    @Jacksonized
     class InstitutionalReport {
         private Conviction conviction;
         private Sentence sentence;
@@ -224,6 +236,7 @@ public interface OffenderApi {
 
     @Value
     @Builder
+    @Jacksonized
     class Sentence {
          private String description;
          private Long originalLength;
@@ -236,6 +249,7 @@ public interface OffenderApi {
 
     @Value
     @Builder
+    @Jacksonized
     class Conviction {
         private String convictionDate;
         private List<Offence> offences;
@@ -282,56 +296,6 @@ public interface OffenderApi {
         }
     }
 
-    /**
-     * No lombok - Scala doesn't play well with inner, inner classes
-     */
-    class  AccessLimitation {
-        private boolean userRestricted;
-        private String restrictionMessage;
-        private boolean userExcluded;
-        private String exclusionMessage;
-
-        @java.beans.ConstructorProperties({"userRestricted", "restrictionMessage", "userExcluded", "exclusionMessage"})
-        public AccessLimitation(boolean userRestricted, String restrictionMessage, boolean userExcluded, String exclusionMessage) {
-            this.userRestricted = userRestricted;
-            this.restrictionMessage = restrictionMessage;
-            this.userExcluded = userExcluded;
-            this.exclusionMessage = exclusionMessage;
-        }
-
-        public boolean canAccess() {
-            return !userExcluded && !userRestricted;
-        }
-        public static AccessLimitation userExcluded(String message){
-            return new AccessLimitation(false, null, true, message);
-        }
-        public static AccessLimitation userRestricted(String message){
-            return new AccessLimitation(true, message, false, null);
-        }
-        public static AccessLimitation userAllowed() {
-            return new AccessLimitation(false, null, false, null);
-        }
-
-
-        public boolean isUserRestricted() {
-            return this.userRestricted;
-        }
-
-        public String getRestrictionMessage() {
-            return this.restrictionMessage;
-        }
-
-        public boolean isUserExcluded() {
-            return this.userExcluded;
-        }
-
-        public String getExclusionMessage() {
-            return this.exclusionMessage;
-        }
-    }
-
-
-
     static String joinList(String delimiter, List<String> list) {
         return String.join(delimiter,
             list.stream()
@@ -343,43 +307,13 @@ public interface OffenderApi {
 
     CompletionStage<String> logon(String username);
 
-    CompletionStage<Boolean> canAccess(String bearerToken, long offenderId);
-
-    /**
-     * A version of `canAccess` that gives more information about why an offender record can not be accessed
-     * @param bearerToken
-     * @param offenderId
-     * @return AccessLimitation even if an offender record can be accessed
-     */
-    CompletionStage<AccessLimitation> checkAccessLimitation(String bearerToken, long offenderId);
-
     CompletionStage<HealthCheckResult> isHealthy();
 
-    CompletionStage<JsonNode> searchDb(Map<String, String> queryParams);
-
-    CompletionStage<JsonNode> searchLdap(Map<String, String> queryParams);
-
-    CompletionStage<Map<String, String>> probationAreaDescriptions(String bearerToken, List<String> probationAreaCodes);
-
     CompletionStage<Offender> getOffenderByCrn(String bearerToken, String crn);
-
-    CompletionStage<JsonNode> getOffenderDetailByOffenderId(String bearerToken, String offenderId);
-
-    CompletionStage<JsonNode> getOffenderRegistrationsByOffenderId(String bearerToken, String offenderId);
-
-    CompletionStage<JsonNode> getOffenderConvictionsByOffenderId(String bearerToken, String offenderId);
-
-    CompletionStage<JsonNode> getOffenderFutureAppointmentsByOffenderId(String bearerToken, String offenderId);
-
-    CompletionStage<JsonNode> getOffenderPersonalCircumstancesByOffenderId(String bearerToken, String offenderId);
 
     CompletionStage<CourtAppearances> getCourtAppearancesByCrn(String bearerToken, String crn);
 
     CompletionStage<CourtReport> getCourtReportByCrnAndCourtReportId(String bearerToken, String crn, String courtReportId);
 
     CompletionStage<Offences> getOffencesByCrn(String bearerToken, String crn);
-
-    CompletionStage<JsonNode> callOffenderApi(String bearerToken, String url);
-
-    CompletionStage<InstitutionalReport> getInstitutionalReport(String session, String crn, String institutionalReportId);
 }

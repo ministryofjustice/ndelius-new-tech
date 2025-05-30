@@ -8,7 +8,7 @@
 @import scala.io.Source
 @import fragment._
 
-@(reportForm: Form[OralReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config)
+@(reportForm: Form[OralReportData], encrypter: String => String)(implicit pageStatuses: Map[Int, PageStatus], webJarsUtil: WebJarsUtil, environment: Environment, configuration: Config, request: Http.Request, messagesProvider: MessagesProvider)
 
 @implicitField = @{ FieldConstructor(govukElements.f) }
 
@@ -23,8 +23,8 @@
         'required -> "true",
         '_date -> "true",
         '_form_hint -> "For example, 31 3 1980",
-        '_day -> reportForm("dateOfHearing_day").getValue.orElse(""),
-        '_month -> reportForm("dateOfHearing_month").getValue.orElse(""),
-        '_year -> reportForm("dateOfHearing_year").getValue.orElse(""))
+        '_day -> reportForm("dateOfHearing_day").value().orElse(""),
+        '_month -> reportForm("dateOfHearing_month").value().orElse(""),
+        '_year -> reportForm("dateOfHearing_year").value().orElse(""))
 
 }

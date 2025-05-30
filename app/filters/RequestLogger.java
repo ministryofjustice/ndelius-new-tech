@@ -1,6 +1,5 @@
 package filters;
 
-import com.github.coveo.ua_parser.Parser;
 import com.google.common.collect.ImmutableList;
 import helpers.JwtHelper;
 import lombok.val;
@@ -8,6 +7,7 @@ import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
 import scala.collection.JavaConverters;
+import ua_parser.Parser;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,13 +48,13 @@ class RequestLogger {
     }
 
     private static String userId(Http.Session session) {
-        return Optional.ofNullable(session.get(OFFENDER_API_BEARER_TOKEN))
+        return session.get(OFFENDER_API_BEARER_TOKEN)
                 .map(JwtHelper::principal)
                 .orElse("unknown user");
     }
 
     private static String id(Http.Session session) {
-        return session.get("id");
+        return session.get("id").orElse("unknown id");
     }
 
     private static String browser(Http.RequestHeader requestHeader) {

@@ -2,11 +2,11 @@ package bdd;
 
 import bdd.wiremock.AlfrescoStoreMock;
 import bdd.wiremock.OffenderApiMock;
-import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.guice.ScenarioScoped;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import lombok.val;
 import org.assertj.core.api.Assertions;
 import play.test.TestBrowser;
@@ -18,12 +18,15 @@ import java.text.SimpleDateFormat;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@ScenarioScoped
 public class GlobalSteps {
     @Inject
     private ReportPage page;
@@ -69,15 +72,14 @@ public class GlobalSteps {
     }
 
     @Then("^the page should display the following by class name")
-    public void pageShouldDisplay(DataTable sectionText) {
-        val labelTextMap = sectionText.asMap(String.class, String.class);
-        labelTextMap.forEach((className, text) -> assertThat(page.getPageTextByClassName(className)).isEqualTo(text));
+    public void pageShouldDisplay(Map<String, String> sectionText) {
+        sectionText.forEach((className, text) -> assertThat(page.getPageTextByClassName(className)).isEqualTo(text));
     }
 
 
     @And("^the page should not display the following by class name$")
-    public void thePageShouldNotDisplayTheFollowingByClassName(DataTable sectionText) {
-        sectionText.asList(String.class).forEach(className -> assertThat(page.hasSectionWithClassName(className)).isFalse());
+    public void thePageShouldNotDisplayTheFollowingByClassName(List<String> sectionText) {
+        sectionText.forEach(className -> assertThat(page.hasSectionWithClassName(className)).isFalse());
 
     }
 
@@ -103,30 +105,26 @@ public class GlobalSteps {
     }
 
     @When("^they enter the following information$")
-    public void theyEnterTheFollowingInformation(DataTable fieldTexts) {
-        val labelTextMap = fieldTexts.asMap(String.class, String.class);
-        labelTextMap.forEach((label, text) -> page.fillTextArea(label, text));
-        fieldNameToValues = toNameValues(labelTextMap);
+    public void theyEnterTheFollowingInformation(Map<String, String> fieldTexts) {
+        fieldTexts.forEach((label, text) -> page.fillTextArea(label, Optional.ofNullable(text).orElse("")));
+        fieldNameToValues = toNameValues(fieldTexts);
     }
 
     @When("^they enter the following information into a classic TextArea$")
-    public void theyEnterTheFollowingInformationIntoAClassicTextArea(DataTable fieldTexts) {
-        val labelTextMap = fieldTexts.asMap(String.class, String.class);
-        labelTextMap.forEach((label, text) -> page.fillClassicTextArea(label, text));
-        fieldNameToValues = toNameValues(labelTextMap);
+    public void theyEnterTheFollowingInformationIntoAClassicTextArea(Map<String, String> fieldTexts) {
+		fieldTexts.forEach((label, text) -> page.fillClassicTextArea(label, text));
+        fieldNameToValues = toNameValues(fieldTexts);
     }
 
     @When("^they input the following information$")
-    public void theyInputTheFollowingInformation(DataTable fieldTexts) {
-        val labelTextMap = fieldTexts.asMap(String.class, String.class);
-        labelTextMap.forEach((label, text) -> page.fillInput(label, text));
-        fieldNameToValues = toNameValues(labelTextMap);
+    public void theyInputTheFollowingInformation(Map<String, String> fieldTexts) {
+		fieldTexts.forEach((label, text) -> page.fillInput(label, text));
+        fieldNameToValues = toNameValues(fieldTexts);
     }
 
     @When("^they input the following information based on ID$")
-    public void theyInputTheFollowingInformationBasedOnId(DataTable fieldTexts) {
-        val idTextMap = fieldTexts.asMap(String.class, String.class);
-        idTextMap.forEach((id, text) -> page.fillInputWithId(id, text));
+    public void theyInputTheFollowingInformationBasedOnId(Map<String, String> fieldTexts) {
+		fieldTexts.forEach((id, text) -> page.fillInputWithId(id, text));
     }
 
     @When("^they enter the month and year \"([^\"]*)\" for \"([^\"]*)\"$")
@@ -153,7 +151,9 @@ public class GlobalSteps {
     }
 
     private Map<String, String> toNameValues(Map<String, String> labelTextMap) {
-        return labelTextMap.keySet().stream().map(label -> new SimpleEntry<>(nameFromLabel(label), labelTextMap.get(label))).collect(toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+        return labelTextMap.keySet().stream()
+                .map(label -> new SimpleEntry<>(nameFromLabel(label), Optional.ofNullable(labelTextMap.get(label)).orElse("")))
+                .collect(toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     }
 
     private String nameFromLabel(String label) {
@@ -167,9 +167,9 @@ public class GlobalSteps {
     }
 
     @Then("^the following information should be saved in the report$")
-    public void theFollowingInformationShouldBeSavedInTheReport(DataTable fieldNameToValuesTable) throws Throwable {
+    public void theFollowingInformationShouldBeSavedInTheReport(Map<String, String> fieldNameToValuesTable) throws Throwable {
         control.await().atMost(SAVE_THROTTLE_TIME_SECONDS + 1, TimeUnit.SECONDS).until(unused ->
-                alfrescoStoreMock.verifySavedDocumentContainsValues(fieldNameToValuesTable.asMap(String.class, String.class)));
+                alfrescoStoreMock.verifySavedDocumentContainsValues(fieldNameToValuesTable));
     }
 
     @Given("^the user does not any enter any characters in the free text fields on the page$")
@@ -193,14 +193,14 @@ public class GlobalSteps {
     }
 
     @Then("^the following error messages are displayed$")
-    public void theFollowingErrorMessagesAreDisplayed(DataTable errorFieldMessages) {
-        val nameErrorMessages = toNameValues(errorFieldMessages.asMap(String.class, String.class));
+    public void theFollowingErrorMessagesAreDisplayed(Map<String, String> errorFieldMessages) {
+        val nameErrorMessages = toNameValues(errorFieldMessages);
         nameErrorMessages.forEach((name, message) -> assertThat(page.errorMessage(name)).isEqualTo(nameErrorMessages.get(name)));
     }
 
     @Then("^the following error messages for each field are displayed$")
-    public void theFollowingErrorMessagesForEachFieldAreDisplayed(DataTable errorFieldMessages) {
-        val nameErrorMessages = errorFieldMessages.asMap(String.class, String.class);
+    public void theFollowingErrorMessagesForEachFieldAreDisplayed(Map<String, String> errorFieldMessages) {
+        val nameErrorMessages = errorFieldMessages;
         nameErrorMessages.forEach((name, message) -> assertThat(page.errorMessage(name)).isEqualTo(nameErrorMessages.get(name)));
     }
 
@@ -276,9 +276,8 @@ public class GlobalSteps {
     }
 
     @Given("^that the offender has the following offender details in Delius$")
-    public void thatTheOffenderHasTheFollowingOffenderDetailsInDelius(DataTable data) {
-        val offenderDetailsMap = data.asMap(String.class, String.class);
-        offenderApiMock.stubOffenderWithDetails(offenderDetailsMap);
+    public void thatTheOffenderHasTheFollowingOffenderDetailsInDelius(Map<String, String> data) {
+		offenderApiMock.stubOffenderWithDetails(data);
     }
 
     @Given("^that the offender has the following data from json file \"([^\"]*)\" in Delius$")

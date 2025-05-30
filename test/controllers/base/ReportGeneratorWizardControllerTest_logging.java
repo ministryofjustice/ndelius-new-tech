@@ -11,10 +11,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.webjars.play.WebJarsUtil;
 import play.Environment;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http;
 import play.twirl.api.Content;
 
 import java.util.List;
@@ -22,7 +24,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class ReportGeneratorWizardControllerTest_logging {
     @Mock
     HttpExecutionContext ec;
@@ -32,6 +34,8 @@ public class ReportGeneratorWizardControllerTest_logging {
     Config configuration;
     @Mock
     Environment environment;
+    @Mock
+    MessagesApi messagesApi;
     @Mock
     EncryptedFormFactory formFactory;
     @Mock
@@ -44,7 +48,7 @@ public class ReportGeneratorWizardControllerTest_logging {
 
     @Before
     public void before() {
-        controller = new TestController(ec, webJarsUtil, configuration, environment, formFactory, TestData.class, pdfGenerator, documentStore, offenderApi);
+        controller = new TestController(ec, webJarsUtil, configuration, environment, messagesApi, formFactory, TestData.class, pdfGenerator, documentStore, offenderApi);
     }
 
     @Test
@@ -81,8 +85,8 @@ public class ReportGeneratorWizardControllerTest_logging {
 
     class TestController extends ReportGeneratorWizardController<TestData> {
 
-        TestController(HttpExecutionContext ec, WebJarsUtil webJarsUtil, Config configuration, Environment environment, EncryptedFormFactory formFactory, Class<TestData> wizardType, PdfGenerator pdfGenerator, DocumentStore documentStore, OffenderApi offenderApi) {
-            super(ec, webJarsUtil, configuration, environment, formFactory, wizardType, pdfGenerator, documentStore, offenderApi);
+        TestController(HttpExecutionContext ec, WebJarsUtil webJarsUtil, Config configuration, Environment environment, MessagesApi messagesApi, EncryptedFormFactory formFactory, Class<TestData> wizardType, PdfGenerator pdfGenerator, DocumentStore documentStore, OffenderApi offenderApi) {
+            super(ec, webJarsUtil, configuration, environment, messagesApi, formFactory, wizardType, pdfGenerator, documentStore, offenderApi);
         }
 
         @Override
@@ -96,12 +100,12 @@ public class ReportGeneratorWizardControllerTest_logging {
         }
 
         @Override
-        protected Content renderCompletedView(Byte[] bytes) {
+        protected Content renderCompletedView(Http.Request request, Byte[] bytes) {
             return null;
         }
 
         @Override
-        protected Content renderCancelledView() {
+        protected Content renderCancelledView(Http.Request request) {
             return null;
         }
 

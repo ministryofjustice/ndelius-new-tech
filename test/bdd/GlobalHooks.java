@@ -1,13 +1,11 @@
 package bdd;
 
 import bdd.wiremock.AlfrescoStoreMock;
-import bdd.wiremock.CustodyApiMock;
 import bdd.wiremock.OffenderApiMock;
 import bdd.wiremock.PdfGeneratorMock;
-import bdd.wiremock.ProbationSearchApiMock;
 import com.mongodb.rx.client.MongoClient;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import org.elasticsearch.client.RestHighLevelClient;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -29,36 +27,30 @@ public class GlobalHooks extends WithChromeBrowser {
     private PdfGeneratorMock pdfGeneratorMock;
     @Inject
     private OffenderApiMock offenderApiMock;
-    @Inject
-    private CustodyApiMock custodyApiMock;
-    @Inject
-    private ProbationSearchApiMock probationSearchApiMock;
 
     @Before
-    public void before() {
+    public void before() throws InterruptedException {
         startServer();
         pdfGeneratorMock.start().stubDefaults();
         offenderApiMock.start().stubDefaults();
         alfrescoStoreMock.start().stubDefaults();
-        custodyApiMock.start().stubDefaults();
-        probationSearchApiMock.start().stubDefaults();
 
         createBrowser();
     }
 
     @After
-    public void after() {
+    public void after() throws InterruptedException {
         pdfGeneratorMock.stop();
         alfrescoStoreMock.stop();
         offenderApiMock.stop();
-        custodyApiMock.stop();
-        probationSearchApiMock.stop();
         stopServer();
         quitBrowser();
     }
 
     @Override
     protected TestBrowser provideBrowser(int port) {
+        theTestBrowser = super.provideBrowser(port);
+        theTestBrowser.getConfiguration().setBaseUrl("http://localhost:" + port);
         return theTestBrowser;
     }
 
@@ -73,14 +65,6 @@ public class GlobalHooks extends WithChromeBrowser {
                 .configure("pdf.generator.url", String.format("http://localhost:%d/", Ports.PDF.getPort()))
                 .configure("store.alfresco.url", String.format("http://localhost:%d/", Ports.ALFRESCO.getPort()))
                 .configure("offender.api.url", String.format("http://localhost:%d/", Ports.OFFENDER_API.getPort()))
-                .configure("nomis.api.url", String.format("http://localhost:%d/", Ports.CUSTODY_API.getPort()))
-                // HMPPS Auth currently using prison api port for wiremock
-                .configure("hmpps.auth.url", String.format("http://localhost:%d/", Ports.CUSTODY_API.getPort()))
-                .configure("probation.offender.search.url", String.format("http://localhost:%d/", Ports.SEARCH_API.getPort()))
-                .configure("prisoner.api.provider", "elite")
-                .configure("offender.search.provider", "probation-offender-search")
-                .configure("custody.api.auth.username", "username")
-                .configure("custody.api.auth.password", "password")
                 .build();
     }
 
