@@ -7,7 +7,6 @@ import helpers.Encryption;
 import interfaces.DocumentStore;
 import interfaces.PdfGenerator;
 import lombok.val;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,7 +112,6 @@ public class ReportGeneratorWizardController_GetPdf_Test extends WithApplication
             overrides(
                 bind(PdfGenerator.class).toInstance(pdfGenerator),
                 bind(DocumentStore.class).toInstance(alfrescoDocumentStore),
-                bind(RestHighLevelClient.class).toInstance(mock(RestHighLevelClient.class)),
                 bind(MongoClient.class).toInstance(mock(MongoClient.class))
             )
             .build();

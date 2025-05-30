@@ -30,15 +30,13 @@ libraryDependencies ++= Seq(
   ehcache,
   "org.webjars" %% "webjars-play" % "2.9.1",
   "org.webjars.bower" % "chartjs" % "2.6.0",
-  "org.webjars" % "underscorejs" % "1.12.1",
-  "org.webjars" % "jquery" % "2.2.4",
+  "org.webjars" % "underscorejs" % "1.13.0-2",
+  "org.webjars" % "jquery" % "3.7.1",
   "org.webjars" % "jquery-ui" % "1.14.1",
-  "org.mongodb" % "mongodb-driver-rx" % "1.4.0",
+  "org.mongodb" % "mongodb-driver-rx" % "1.5.0",
   "commons-io" % "commons-io" % "2.19.0",
   "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.24.3",
-  "org.elasticsearch.client" % "elasticsearch-rest-high-level-client" % "6.0.1",
   "com.github.ua-parser" % "uap-java" % "1.6.1",
-  "com.amazonaws" % "aws-java-sdk" % "1.11.46",
   "org.languagetool" % "language-en" % "6.6",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.4",
 
@@ -49,9 +47,9 @@ libraryDependencies ++= Seq(
   "org.wiremock" % "wiremock" % "3.13.0" % "test",
   "org.seleniumhq.selenium" % "selenium-chrome-driver" % "4.33.0" % "test",
   "io.github.bonigarcia" % "webdrivermanager" % "6.1.0",
-  "io.cucumber" % "cucumber-guice" % "7.22.2" % "test",
-  "io.cucumber" % "cucumber-java" % "7.22.2" % "test",
-  "io.cucumber" % "cucumber-junit" % "7.22.2" % "test"
+  "io.cucumber" % "cucumber-guice" % "7.23.0" % "test",
+  "io.cucumber" % "cucumber-java" % "7.23.0" % "test",
+  "io.cucumber" % "cucumber-junit" % "7.23.0" % "test"
 )
 
 excludeDependencies ++= Seq(

@@ -6,7 +6,6 @@ import bdd.wiremock.PdfGeneratorMock;
 import com.mongodb.rx.client.MongoClient;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
-import org.elasticsearch.client.RestHighLevelClient;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.test.TestBrowser;
@@ -58,7 +57,6 @@ public class GlobalHooks extends WithChromeBrowser {
     protected Application provideApplication() {
         return new GuiceApplicationBuilder().
                 overrides(
-                        bind(RestHighLevelClient.class).toInstance(mock(RestHighLevelClient.class)),
                         bind(MongoClient.class).toInstance(mock(MongoClient.class))
                 )
                 .configure("params.user.token.valid.duration", "100000d")

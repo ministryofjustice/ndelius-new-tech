@@ -7,7 +7,6 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.mongodb.rx.client.MongoClient;
 import helpers.JsonHelper;
 import lombok.val;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -200,7 +199,6 @@ public class UtilityControllerTest extends WithApplication {
             .configure("store.alfresco.url", String.format("http://localhost:%d/alfresco/service/", PORT))
             .configure("offender.api.url", String.format("http://localhost:%d/api/", PORT))
             .overrides(
-                bind(RestHighLevelClient.class).toInstance(mock(RestHighLevelClient.class)),
                 bind(MongoClient.class).toInstance(mock(MongoClient.class))
             )
             .build();

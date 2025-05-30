@@ -38,18 +38,6 @@ The project requires MongoDB and Eleasticsearch v6.x, the easiest way is to use 
 docker-compose up
 ```
 
-### Populate Elasticsearch
-
-Once Elasticsearch is running, you can populate the instance with a small number of dummy offender records with the included Postman collection:
-
-> Elasticsearch.postman_collection.json
-
-To run the collection with [Newman](https://github.com/postmanlabs/newman):
-
-```
-newman run Elasticsearch.postman_collection.json
-```
-
 ### PDF Generator
 
 Clone the [PDF Generator](https://github.com/ministryofjustice/pdf-generator) repository and run:

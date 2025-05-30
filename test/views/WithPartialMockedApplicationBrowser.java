@@ -4,7 +4,6 @@ import com.mongodb.rx.client.MongoClient;
 import interfaces.DocumentStore;
 import interfaces.OffenderApi;
 import interfaces.PdfGenerator;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.mockito.Mock;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -27,7 +26,6 @@ public class WithPartialMockedApplicationBrowser extends WithBrowser {
                         bind(PdfGenerator.class).toInstance(pdfGenerator),
                         bind(DocumentStore.class).toInstance(documentStore),
                         bind(OffenderApi.class).toInstance(offenderApi),
-                        bind(RestHighLevelClient.class).toInstance(mock(RestHighLevelClient.class)),
                         bind(MongoClient.class).toInstance(mock(MongoClient.class))
                 )
                 .configure("params.user.token.valid.duration", "100000d")

@@ -10,7 +10,6 @@ import helpers.InvalidCredentialsException;
 import helpers.JsonHelper;
 import interfaces.OffenderApi;
 import lombok.val;
-import org.joda.time.DateTime;
 import org.webjars.play.WebJarsUtil;
 import play.Environment;
 import play.Logger;
@@ -32,6 +31,7 @@ import scala.compat.java8.functionConverterImpls.FromJavaFunction;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -217,7 +217,7 @@ public abstract class WizardController<T extends WizardData> extends Controller 
                 put("username", wizardData.getOnBehalfOfUser());
                 put("sessionId", id);
                 put("pageNumber", wizardData.getPageNumber());
-                put("dateTime", DateTime.now().toDate());
+                put("dateTime", new Date());
             }
         };
 
