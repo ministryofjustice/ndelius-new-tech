@@ -191,7 +191,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
           requires:
             - artifacts
       - hmpps/deploy_env:
@@ -203,7 +203,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
           requires:
             - artifacts
       - request-prod-approval:
