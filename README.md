@@ -146,9 +146,9 @@ The build pipeline performs the following steps
 - deploy to the new tech smoke test environment
 - run smoke tests using the tests in  [Smoke Tests]
 
-If changes are required to the Smoke Tests which would break a `master` build then just branch the [Smoke Tests] with a branch of the _exact_ name as this branch. CircleCI will attempt to use a matching branch name else will use `master`
+If changes are required to the Smoke Tests which would break a `main` build then just branch the [Smoke Tests] with a branch of the _exact_ name as this branch. CircleCI will attempt to use a matching branch name else will use `master`
 
-#### Master build
+#### Main build
 
 The build pipeline performs the following steps
 - sbt assembly
