@@ -6,6 +6,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import play.test.Helpers;
 import play.test.TestBrowser;
 
+import java.time.Duration;
+
 public class ChromeTestBrowser {
     private static TestBrowser INSTANCE;
 
@@ -19,6 +21,7 @@ public class ChromeTestBrowser {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless");
             options.addArguments("--disable-gpu");
+            options.setImplicitWaitTimeout(Duration.ofSeconds(5));
             INSTANCE = Helpers.testBrowser(new ChromeDriver(options), port);
         }
         INSTANCE.getConfiguration().setBaseUrl(String.format("http://localhost:%d", port));
