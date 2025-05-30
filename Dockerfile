@@ -1,11 +1,7 @@
-FROM openjdk:21-slim
+FROM eclipse-temurin:21-jre-alpine
 
-RUN apt-get update && \
-    apt-get install -y curl jq && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN addgroup --gid 2000 --system appgroup && \
-    adduser --uid 2000 --system appuser --gid 2000
+RUN addgroup --gid 2000 appgroup && \
+    adduser --uid 2000 --system appuser --ingroup appgroup
 USER 2000
 
 WORKDIR /app
