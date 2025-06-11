@@ -106,7 +106,7 @@ public abstract class WizardController<T extends WizardData> extends Controller 
                 val pageStatuses = getPageStatuses(boundForm.value(), thisPage, null);
 
                 var result = ok(renderPage(request, thisPage, boundForm, pageStatuses));
-                if (params.containsKey(OFFENDER_API_BEARER_TOKEN)) {
+                if (params.containsKey(OFFENDER_API_BEARER_TOKEN) && params.get(OFFENDER_API_BEARER_TOKEN) != null) {
                     return result.addingToSession(request, OFFENDER_API_BEARER_TOKEN, params.get(OFFENDER_API_BEARER_TOKEN));
                 } else return result;
 
