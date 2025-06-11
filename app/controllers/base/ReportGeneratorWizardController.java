@@ -152,11 +152,11 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
 						Logger.info("AUDIT:{}: ReportGeneratorWizardController: Successful logon for user {}", principal(bearerToken), username);
 						return bearerToken;
 					}, ec.current());
-            }).orElse(CompletableFuture.completedFuture("ignored"));
+            }).orElse(CompletableFuture.completedFuture(request.session().get(OFFENDER_API_BEARER_TOKEN).orElse(null)));
 
         return possibleBearerTokenRefresh
                 .thenCompose(bearerToken -> super.initialParams(request).thenApply(params -> {
-                    params.put(OFFENDER_API_BEARER_TOKEN, bearerToken);
+                    if (bearerToken != null) params.put(OFFENDER_API_BEARER_TOKEN, bearerToken);
                     return params;
                 }))
                 .thenCompose(params -> loadExistingDocument(request, params).orElseGet(() -> createNewDocument(request, params)))
@@ -296,6 +296,7 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
                 offenderApi.getOffenderByCrn(getToken(params), info.get("crn"))
                     .thenApply(offender -> storeOffenderDetails(info, offender)), ec.current())).
             map(originalInfo -> originalInfo.thenApply(info -> {
+                info.put(OFFENDER_API_BEARER_TOKEN, params.get(OFFENDER_API_BEARER_TOKEN));
                 info.put("onBehalfOfUser", params.get("onBehalfOfUser"));
                 info.put("documentId", params.get("documentId"));
                 info.put("user", params.get("user"));
@@ -382,7 +383,7 @@ public abstract class ReportGeneratorWizardController<T extends ReportGeneratorW
         BeanMap beanMap = BeanMap.create(data);
 
         val dataValues = new HashMap<String, Object>(beanMap);
-        List<String> excludedKeys = Arrays.asList("email", "rating", "feedback", "role", "provider", "region");
+        List<String> excludedKeys = Arrays.asList(OFFENDER_API_BEARER_TOKEN, "email", "rating", "feedback", "role", "provider", "region");
         excludedKeys.forEach(dataValues::remove);
 
         return dataValues;
