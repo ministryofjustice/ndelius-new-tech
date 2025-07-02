@@ -14,7 +14,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@babel/preset-env": "^7.27.2",
     "@babel/register": "^7.27.1",
-    "babel-jest": "^29.7.0",
+    "babel-jest": "^30.0.2",
     "babelify": "^10.0.0",
     "browserify": "^17.0.1",
     "chai": "^5.2.0",
