@@ -29,6 +29,6 @@ describe('save progress helper component', () => {
     const formData = formWithZeroJumpNumber(document.getElementById('ndForm'))
     autoSaveProgress({ id: 'testTextArea' })
     expect(startSaveIcon).toHaveBeenCalled()
-    expect(promisifyXMLHttpRequest).toBeCalledWith({ 'body': formData, 'method': 'POST', 'url': '/some/form/url/save' })
+    expect(promisifyXMLHttpRequest).toHaveBeenCalledWith({ 'body': formData, 'method': 'POST', 'url': '/some/form/url/save' })
   })
 })

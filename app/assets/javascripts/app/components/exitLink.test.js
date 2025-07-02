@@ -1,6 +1,6 @@
 'use strict'
 
-import { initExitLink } from './exitLink'
+import {initExitLink} from './exitLink'
 
 describe('Exit link component', () => {
 
@@ -22,6 +22,6 @@ describe('Exit link component', () => {
   })
 
   test('should submit the form', () => {
-    expect(mockFormSubmitMethod).toBeCalled()
+    expect(mockFormSubmitMethod).toHaveBeenCalled()
   })
 })

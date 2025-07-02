@@ -1,9 +1,9 @@
 'use strict'
 
-import { formWithZeroJumpNumber } from '../utilities/formWithZeroJumpNumber'
-import { promisifyXMLHttpRequest } from '../utilities/xhrPromisify'
-import { initViewDraftLinks } from './viewDraftReport'
-import { trackEvent } from '../../helpers/analyticsHelper'
+import {formWithZeroJumpNumber} from '../utilities/formWithZeroJumpNumber'
+import {promisifyXMLHttpRequest} from '../utilities/xhrPromisify'
+import {initViewDraftLinks} from './viewDraftReport'
+import {trackEvent} from '../../helpers/analyticsHelper'
 
 jest.mock('../utilities/xhrPromisify', () => ({
   promisifyXMLHttpRequest: jest.fn().mockImplementation(() => {
@@ -40,11 +40,11 @@ describe('View draft component', () => {
 
     test('should POST form data with jumpNumber changed to zero to the specified endpoint', () => {
       const formData = formWithZeroJumpNumber(document.getElementById('ndForm'))
-      expect(promisifyXMLHttpRequest).toBeCalledWith({ 'body': formData, 'method': 'POST', 'url': '/some/form/url/save' })
+      expect(promisifyXMLHttpRequest).toHaveBeenCalledWith({ 'body': formData, 'method': 'POST', 'url': '/some/form/url/save' })
     })
 
     test('should have tracked the click event', () => {
-      expect(trackEvent).toBeCalledWith('click', 'SFR - View draft', 'Test View Draft')
+      expect(trackEvent).toHaveBeenCalledWith('click', 'SFR - View draft', 'Test View Draft')
     })
   })
 
@@ -56,7 +56,7 @@ describe('View draft component', () => {
     })
 
     test('should have tracked the click event', () => {
-      expect(trackEvent).toBeCalledWith('click', 'SFR - View draft', 'Test View Draft')
+      expect(trackEvent).toHaveBeenCalledWith('click', 'SFR - View draft', 'Test View Draft')
     })
   })
 })

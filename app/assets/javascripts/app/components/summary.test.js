@@ -1,5 +1,5 @@
-import { initSummaryAnalytics } from './summary'
-import { trackEvent } from '../../helpers/analyticsHelper'
+import {initSummaryAnalytics} from './summary'
+import {trackEvent} from '../../helpers/analyticsHelper'
 
 jest.mock('../../helpers/analyticsHelper', () => ({
   trackEvent: jest.fn()
@@ -37,14 +37,14 @@ describe('Summary component', () => {
     test('should track the selected summary element click and pass the relevant data', () => {
       const summary = document.querySelector('summary')
       summary.click() // open
-      expect(trackEvent).toBeCalledWith('open', 'PAROM1 - What to include', 'Test summary component heading > Some caption text')
+      expect(trackEvent).toHaveBeenCalledWith('open', 'PAROM1 - What to include', 'Test summary component heading > Some caption text')
     })
 
     test('should correctly track open/close state', () => {
       const summary = document.querySelector('summary')
       summary.click() // Open
       summary.click() // Close
-      expect(trackEvent).toBeCalledWith('close', 'PAROM1 - What to include', 'Test summary component heading > Some caption text')
+      expect(trackEvent).toHaveBeenCalledWith('close', 'PAROM1 - What to include', 'Test summary component heading > Some caption text')
     })
   })
 
@@ -61,14 +61,14 @@ describe('Summary component', () => {
     test('should track the selected summary element click and pass the relevant data', () => {
       const summary = document.querySelector('summary')
       summary.click() // open
-      expect(trackEvent).toBeCalledWith('open', 'PAROM1 - What to include', 'Test summary component heading > Some text label')
+      expect(trackEvent).toHaveBeenCalledWith('open', 'PAROM1 - What to include', 'Test summary component heading > Some text label')
     })
 
     test('should correctly track open/close state', () => {
       const summary = document.querySelector('summary')
       summary.click() // Open
       summary.click() // Close
-      expect(trackEvent).toBeCalledWith('close', 'PAROM1 - What to include', 'Test summary component heading > Some text label')
+      expect(trackEvent).toHaveBeenCalledWith('close', 'PAROM1 - What to include', 'Test summary component heading > Some text label')
     })
   })
 })

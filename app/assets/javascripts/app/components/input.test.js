@@ -1,5 +1,5 @@
-import { initInputs } from './input'
-import { autoSaveProgress } from '../helpers/saveProgressHelper'
+import {initInputs} from './input'
+import {autoSaveProgress} from '../helpers/saveProgressHelper'
 
 jest.mock('../helpers/saveProgressHelper')
 jest.useFakeTimers()
@@ -43,7 +43,7 @@ describe('input component', () => {
 
     it('should auto save progress on blur', () => {
       triggerEvent($input, 'blur')
-      expect(autoSaveProgress).toBeCalled()
+      expect(autoSaveProgress).toHaveBeenCalled()
     })
   })
 
@@ -55,7 +55,7 @@ describe('input component', () => {
 
     it('should NOT auto save progress on blur', () => {
       triggerEvent($input, 'blur')
-      expect(autoSaveProgress).not.toBeCalled()
+      expect(autoSaveProgress).not.toHaveBeenCalled()
     })
   })
 
@@ -63,7 +63,7 @@ describe('input component', () => {
     it('should auto save progress on click', () => {
       $input = document.getElementById('radio-input')
       $input.click()
-      expect(autoSaveProgress).toBeCalled()
+      expect(autoSaveProgress).toHaveBeenCalled()
     })
   })
 
@@ -71,7 +71,7 @@ describe('input component', () => {
     it('should auto save progress on click', () => {
       $input = document.getElementById('checkbox-input')
       $input.click()
-      expect(autoSaveProgress).toBeCalled()
+      expect(autoSaveProgress).toHaveBeenCalled()
     })
   })
 })

@@ -1,6 +1,6 @@
 'use strict'
 
-import { initReportNavigation } from './reportNavigation'
+import {initReportNavigation} from './reportNavigation'
 
 describe('Report navigation component', () => {
 
@@ -37,7 +37,7 @@ describe('Report navigation component', () => {
     })
 
     test('should submit the form', () => {
-      expect(mockFormSubmitMethod).toBeCalled()
+      expect(mockFormSubmitMethod).toHaveBeenCalled()
     })
   })
 
@@ -52,7 +52,7 @@ describe('Report navigation component', () => {
     })
 
     test('should NOT submit the form', () => {
-      expect(mockFormSubmitMethod).not.toBeCalled()
+      expect(mockFormSubmitMethod).not.toHaveBeenCalled()
     })
   })
 })
