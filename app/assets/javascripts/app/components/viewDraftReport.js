@@ -1,6 +1,6 @@
-import { isShortFormatReport } from '../helpers/locationHelper'
-import { trackEvent } from '../../helpers/analyticsHelper'
-import { saveReportProgress } from '../helpers/saveProgressHelper'
+import {isShortFormatReport} from '../helpers/locationHelper'
+import {trackEvent} from '../../helpers/analyticsHelper'
+import {saveReportProgress} from '../helpers/saveProgressHelper'
 
 const trackDraftClick = () => {
   trackEvent('click', `${ isShortFormatReport ? 'SFR' : 'PAROM1' } - View draft`, document.getElementsByTagName('h1')[0].textContent)
@@ -18,7 +18,7 @@ const initViewDraftLinks = () => {
       trackDraftClick()
 
       saveReportProgress($form).finally(() => {
-        window.location = target
+        if (window.location) window.location = target
       })
     })
   }
