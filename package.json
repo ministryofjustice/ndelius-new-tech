@@ -21,7 +21,7 @@
     "chai-shallow-deep-equal": "^1.4.6",
     "core-js": "^3.43.0",
     "jest": "^30.0.3",
-    "jest-environment-jsdom": "^29.7.0",
+    "jest-environment-jsdom": "^30.0.2",
     "sinon": "^21.0.0",
     "sinon-chai": "^4.0.0"
   },
