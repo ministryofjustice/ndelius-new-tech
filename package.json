@@ -17,7 +17,7 @@
     "babel-jest": "^30.0.5",
     "babelify": "^10.0.0",
     "browserify": "^17.0.1",
-    "chai": "^5.2.1",
+    "chai": "^6.0.1",
     "chai-shallow-deep-equal": "^1.4.6",
     "core-js": "^3.44.0",
     "jest": "^30.0.5",
