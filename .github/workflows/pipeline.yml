@@ -1,0 +1,400 @@
+name: Pipeline [test -> build -> deploy]
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+    inputs:
+      additional_docker_tag:
+        description: Additional docker tag that can be used to specify stable or testing tags
+        required: false
+        default: ''
+        type: string
+      push:
+        description: Push docker image to registry flag
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
+
+jobs:
+  helm_lint:
+    strategy:
+      matrix:
+        environments: ['test', 'preprod', 'prod']
+    name: helm lint
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
+    with:
+      environment: ${{ matrix.environments }}
+
+  compile:
+    name: Compile
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'sbt'
+          cache-dependency-path: build.sbt
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Cache sbt dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
+          restore-keys: |
+            v2-ndelius-new-tech-
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Compile Scala code
+        env:
+          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
+        run: |
+          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+          sbt compile < /dev/null
+
+      - name: Persist to workspace
+        uses: actions/upload-artifact@v6
+        with:
+          name: workspace
+          path: |
+            .
+            !.git
+          retention-days: 1
+
+  unit_tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [compile]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download workspace
+        uses: actions/download-artifact@v7
+        with:
+          name: workspace
+          path: .
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'sbt'
+          cache-dependency-path: build.sbt
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Restore sbt cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
+          restore-keys: |
+            v2-ndelius-new-tech-
+
+      - name: Clean npm dependencies
+        run: |
+          rm -rf node_modules
+
+      - name: Install npm dependencies
+        run: npm ci --force
+
+      - name: Run Jest tests
+        run: npm test
+
+#      - name: Run unit tests
+#        env:
+#          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
+#          CUCUMBER_FILTER_TAGS: "@None"
+#        run: |
+#          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+#          sbt test < /dev/null
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: unit-test-results
+          path: target/test-reports/
+          if-no-files-found: ignore
+
+  bdd_sfr:
+    name: BDD tests - SFR
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [compile]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download workspace
+        uses: actions/download-artifact@v7
+        with:
+          name: workspace
+          path: .
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'sbt'
+          cache-dependency-path: build.sbt
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Restore sbt cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
+          restore-keys: |
+            v2-ndelius-new-tech-
+
+      - name: Run BDD tests
+        id: bdd_run
+        continue-on-error: true
+        env:
+          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
+          CUCUMBER_FILTER_TAGS: "@SFR"
+        run: |
+          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+          sbt "testOnly bdd.RunCucumber" < /dev/null
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bdd-sfr-test-results
+          path: target/test-reports/
+          if-no-files-found: ignore
+
+  bdd_other:
+    name: BDD tests - Others
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [compile]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download workspace
+        uses: actions/download-artifact@v7
+        with:
+          name: workspace
+          path: .
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'sbt'
+          cache-dependency-path: build.sbt
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Restore sbt cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
+          restore-keys: |
+            v2-ndelius-new-tech-
+
+      - name: Run BDD tests
+        env:
+          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
+          CUCUMBER_FILTER_TAGS: "not @SFR"
+        run: |
+          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+          sbt "testOnly bdd.RunCucumber" < /dev/null
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bdd-other-test-results
+          path: target/test-reports/
+          if-no-files-found: ignore
+
+  assembly:
+    name: Assemble jar
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [compile, unit_tests, bdd_sfr, bdd_other]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download workspace
+        uses: actions/download-artifact@v7
+        with:
+          name: workspace
+          path: .
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'sbt'
+          cache-dependency-path: build.sbt
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Restore sbt cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
+          restore-keys: |
+            v2-ndelius-new-tech-
+
+      - name: Run sbt assembly
+        env:
+          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
+          APP_VERSION: ${{ github.run_number }}
+        run: |
+          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+          sbt 'set test in assembly := {}' assembly < /dev/null
+
+      - name: Save Fat Jar
+        run: |
+          mkdir -p target/artifacts
+          rm target/scala-2.13/ndelius2_*-web-assets.jar
+          cp target/scala-2.13/*.jar target/artifacts/
+          cp target/artifacts/ndelius2*.jar target/artifacts/ndelius2.jar
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: build-results
+          path: target/artifacts/ndelius2.jar
+
+      - name: Save sbt cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
+
+  docker_build:
+    name: Build docker image from hmpps-github-actions
+    needs: [assembly, helm_lint]
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
+    with:
+      docker_registry: 'ghcr.io'
+      registry_org: 'ministryofjustice'
+      additional_docker_tag: ${{ inputs.additional_docker_tag }}
+      push: ${{ inputs.push || true }}
+      docker_multiplatform: false
+      download_build_artifacts: true
+    secrets: inherit
+
+  deploy_test:
+    name: Deploy to test environment
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - docker_build
+      - helm_lint
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW VERSION
+    secrets: inherit
+    with:
+      environment: 'test'
+      app_version: '${{ needs.docker_build.outputs.app_version }}'
+      helm_timeout: '5m'
+
+  deploy_preprod:
+    name: Deploy to preprod environment
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - docker_build
+      - helm_lint
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW VERSION
+    secrets: inherit
+    with:
+      environment: 'preprod'
+      app_version: '${{ needs.docker_build.outputs.app_version }}'
+      helm_timeout: '5m'
+
+  deploy_prod:
+    name: Deploy to prod environment
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - docker_build
+      - helm_lint
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW VERSION
+    secrets: inherit
+    with:
+      environment: 'prod'
+      app_version: '${{ needs.docker_build.outputs.app_version }}'
+      helm_timeout: '5m'
