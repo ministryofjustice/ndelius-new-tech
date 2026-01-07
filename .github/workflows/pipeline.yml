@@ -47,28 +47,15 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Setup JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
-          cache: 'sbt'
-          cache-dependency-path: build.sbt
 
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
-
-      - name: Cache sbt dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
-          restore-keys: |
-            v2-ndelius-new-tech-
 
       - name: Install npm dependencies
         run: npm ci
@@ -79,64 +66,6 @@ jobs:
         run: |
           export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
           sbt compile < /dev/null
-
-      - name: Persist to workspace
-        uses: actions/upload-artifact@v6
-        with:
-          name: workspace
-          path: |
-            .
-            !.git
-          retention-days: 1
-
-  unit_tests:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [compile]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Download workspace
-        uses: actions/download-artifact@v7
-        with:
-          name: workspace
-          path: .
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'sbt'
-          cache-dependency-path: build.sbt
-
-      - name: Setup sbt
-        uses: sbt/setup-sbt@v1
-
-      - name: Restore sbt cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
-          restore-keys: |
-            v2-ndelius-new-tech-
-
-      - name: Clean npm dependencies
-        run: |
-          rm -rf node_modules
-
-      - name: Install npm dependencies
-        run: npm ci --force
 
       - name: Run Jest tests
         run: npm test
@@ -279,7 +208,7 @@ jobs:
     name: Assemble jar
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [compile, unit_tests, bdd_sfr, bdd_other]
+    needs: [compile, bdd_sfr, bdd_other]
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
