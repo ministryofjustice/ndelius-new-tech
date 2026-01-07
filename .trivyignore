@@ -3,4 +3,6 @@
 # Reason: Vulnerability present due to upstream eclipse-temurin Alpine image rebuild lag
 # Package: libpng
 CVE-2025-66293 exp:2026-02-01
+CVE-2025-65018 exp:2026-02-01
+CVE-2025-64720 exp:2026-02-01
 CVE-2025-68973 exp:2026-02-01
