@@ -141,13 +141,13 @@ jobs:
       - name: Run Jest tests
         run: npm test
 
-#      - name: Run unit tests
-#        env:
-#          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
-#          CUCUMBER_FILTER_TAGS: "@None"
-#        run: |
-#          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
-#          sbt test < /dev/null
+      - name: Run unit tests
+        env:
+          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
+          CUCUMBER_FILTER_TAGS: "@None"
+        run: |
+          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+          sbt test < /dev/null
 
       - name: Upload test results
         if: always()
