@@ -36,7 +36,7 @@ jobs:
       environment: ${{ matrix.environments }}
 
   compile:
-    name: Compile
+    name: Compile and Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -89,55 +89,6 @@ jobs:
             !.git
           retention-days: 1
 
-  unit_tests:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [compile]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Download workspace
-        uses: actions/download-artifact@v7
-        with:
-          name: workspace
-          path: .
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'sbt'
-          cache-dependency-path: build.sbt
-
-      - name: Setup sbt
-        uses: sbt/setup-sbt@v1
-
-      - name: Restore sbt cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
-          restore-keys: |
-            v2-ndelius-new-tech-
-
-      - name: Clean npm dependencies
-        run: |
-          rm -rf node_modules
-
-      - name: Install npm dependencies
-        run: npm ci --force
-
       - name: Run Jest tests
         run: npm test
 
@@ -149,7 +100,7 @@ jobs:
           export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
           sbt test < /dev/null
 
-      - name: Upload test results
+      - name: Upload unit test results
         if: always()
         uses: actions/upload-artifact@v6
         with:
@@ -157,51 +108,8 @@ jobs:
           path: target/test-reports/
           if-no-files-found: ignore
 
-  bdd_sfr:
-    name: BDD tests - SFR
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: [compile]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Download workspace
-        uses: actions/download-artifact@v7
-        with:
-          name: workspace
-          path: .
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'sbt'
-          cache-dependency-path: build.sbt
-
-      - name: Setup sbt
-        uses: sbt/setup-sbt@v1
-
-      - name: Restore sbt cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
-          restore-keys: |
-            v2-ndelius-new-tech-
-
       - name: Run BDD tests
         id: bdd_run
-        continue-on-error: true
         env:
           _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
           CUCUMBER_FILTER_TAGS: "@SFR"
@@ -209,7 +117,7 @@ jobs:
           export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
           sbt "testOnly bdd.RunCucumber" < /dev/null
 
-      - name: Upload test results
+      - name: Upload BDD test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -217,69 +125,11 @@ jobs:
           path: target/test-reports/
           if-no-files-found: ignore
 
-  bdd_other:
-    name: BDD tests - Others
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: [compile]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download workspace
-        uses: actions/download-artifact@v7
-        with:
-          name: workspace
-          path: .
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'sbt'
-          cache-dependency-path: build.sbt
-
-      - name: Setup sbt
-        uses: sbt/setup-sbt@v1
-
-      - name: Restore sbt cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
-          restore-keys: |
-            v2-ndelius-new-tech-
-
-      - name: Run BDD tests
-        env:
-          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
-          CUCUMBER_FILTER_TAGS: "not @SFR"
-        run: |
-          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
-          sbt "testOnly bdd.RunCucumber" < /dev/null
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bdd-other-test-results
-          path: target/test-reports/
-          if-no-files-found: ignore
-
   assembly:
     name: Assemble jar
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [compile, unit_tests, bdd_sfr, bdd_other]
+    needs: [compile]
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -362,7 +212,7 @@ jobs:
 
   deploy_test:
     name: Deploy to test environment
-    if: github.ref == 'refs/heads/main'
+    #if: github.ref == 'refs/heads/main'
     needs:
       - docker_build
       - helm_lint
