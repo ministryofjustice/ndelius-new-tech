@@ -60,15 +60,15 @@ jobs:
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
 
-      - name: Cache sbt dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
-          restore-keys: |
-            v2-ndelius-new-tech-
+#      - name: Cache sbt dependencies
+#        uses: actions/cache@v5
+#        with:
+#          path: |
+#            ~/.ivy2/cache
+#            ~/.sbt
+#          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
+#          restore-keys: |
+#            v2-ndelius-new-tech-
 
       - name: Install npm dependencies
         run: npm ci
@@ -157,15 +157,15 @@ jobs:
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
 
-      - name: Restore sbt cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
-          restore-keys: |
-            v2-ndelius-new-tech-
+#      - name: Restore sbt cache
+#        uses: actions/cache@v5
+#        with:
+#          path: |
+#            ~/.ivy2/cache
+#            ~/.sbt
+#          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
+#          restore-keys: |
+#            v2-ndelius-new-tech-
 
       - name: Run sbt assembly
         env:
