@@ -113,13 +113,16 @@ jobs:
           if-no-files-found: ignore
 
       - name: Run BDD tests
-        id: bdd_run
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
           CUCUMBER_FILTER_TAGS: "@SFR"
-        run: |
-          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
-          sbt "testOnly bdd.RunCucumber" < /dev/null
+        with:
+          max_attempts: 3
+          timeout_minutes: 15
+          command: |
+            export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+            sbt "testOnly bdd.RunCucumber" < /dev/null
 
       - name: Upload BDD test results
         if: always()
