@@ -144,15 +144,15 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '22'
-          cache: 'npm'
+#          cache: 'npm'
 
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
-          cache: 'sbt'
-          cache-dependency-path: build.sbt
+#          cache: 'sbt'
+#          cache-dependency-path: build.sbt
 
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
