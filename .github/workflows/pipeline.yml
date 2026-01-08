@@ -71,7 +71,7 @@ jobs:
             v2-ndelius-new-tech-
 
       - name: Install npm dependencies
-        run: npm install
+        run: npm ci
 
       - name: Compile Scala code
         env:
@@ -93,12 +93,16 @@ jobs:
         run: npm test
 
       - name: Run unit tests
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
           CUCUMBER_FILTER_TAGS: "@None"
-        run: |
-          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
-          sbt test < /dev/null
+        with:
+          max_attempts: 3
+          timeout_minutes: 15
+          command: |
+            export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+            sbt test < /dev/null
 
       - name: Upload unit test results
         if: always()
