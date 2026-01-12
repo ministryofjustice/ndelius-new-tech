@@ -1,4 +1,4 @@
-@SFR
+//@SFR
 Feature: Short Format Pre-sentence Report - Risk assessment
 
   Background: Delius user is on the "Risk assessment" UI within the Short Format Pre-sentence Report

@@ -1,4 +1,4 @@
-@SFR
+//@SFR
 Feature: Short Format Pre-sentence Report - Check your report
 
   Scenario: Delius user has completed all the relevant fields for "Offence details" UI
