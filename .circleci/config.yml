@@ -187,36 +187,36 @@ workflows:
           name: deploy_test
           env: "test"
           context: hmpps-common-vars
-          filters:
-            branches:
-              only:
-                - main
+#          filters:
+#            branches:
+#              only:
+#                - main
           requires:
             - artifacts
-      - hmpps/deploy_env:
-          name: deploy_preprod
-          env: "preprod"
-          context:
-            - hmpps-common-vars
-            - hmpps-delius-core-preprod
-          filters:
-            branches:
-              only:
-                - main
-          requires:
-            - artifacts
-      - request-prod-approval:
-          type: approval
-          requires:
-            - deploy_test
-            - deploy_preprod
-      - hmpps/deploy_env:
-          name: deploy_prod
-          env: "prod"
-          slack_notification: true
-          slack_channel_name: probation-integration-notifications
-          context:
-            - hmpps-common-vars
-            - hmpps-delius-core-prod
-          requires:
-            - request-prod-approval
+#      - hmpps/deploy_env:
+#          name: deploy_preprod
+#          env: "preprod"
+#          context:
+#            - hmpps-common-vars
+#            - hmpps-delius-core-preprod
+#          filters:
+#            branches:
+#              only:
+#                - main
+#          requires:
+#            - artifacts
+#      - request-prod-approval:
+#          type: approval
+#          requires:
+#            - deploy_test
+#            - deploy_preprod
+#      - hmpps/deploy_env:
+#          name: deploy_prod
+#          env: "prod"
+#          slack_notification: true
+#          slack_channel_name: probation-integration-notifications
+#          context:
+#            - hmpps-common-vars
+#            - hmpps-delius-core-prod
+#          requires:
+#            - request-prod-approval
