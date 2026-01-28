@@ -18,6 +18,7 @@ version := sys.env.getOrElse("APP_VERSION",
 lazy val root = (project in file(".")).enablePlugins(PlayJava, SbtWeb, SbtJsEngine).configs( IntegrationTest )
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
+npmSubcommand := NpmSubcommand.Ci
 
 resolvers ++= Seq("Spring Release Repository" at "https://repo.spring.io/plugins-release")
 
