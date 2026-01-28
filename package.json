@@ -6,7 +6,7 @@
     "test": "jest"
   },
   "engines": {
-    "node": "^22"
+    "node": "^24"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
