@@ -1,7 +1,7 @@
 defaults: &defaults
   working_directory: ~/ndelius-new-tech
   docker:
-    - image: cimg/openjdk:21.0-browsers
+    - image: cimg/openjdk:25.0-browsers
 
 version: 2.1
 

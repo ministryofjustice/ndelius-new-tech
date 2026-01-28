@@ -11,7 +11,7 @@ Fully asynchronous and non-blocking from the ground up, with the potential to se
 ## Development
 
 Prerequisites:
-- Java 21
+- Java 25
 - [sbt](http://www.scala-sbt.org/release/docs) (Scala Build Tool)
 - Node 22
 - [nDelius Wrapper](https://github.com/ministryofjustice/ndelius-wrapper)

@@ -21,7 +21,7 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers ++= Seq("Spring Release Repository" at "https://repo.spring.io/plugins-release")
 
-scalaVersion := "2.13.16"
+scalaVersion := "2.13.17"
 pipelineStages := Seq(digest)
 libraryDependencies ++= Seq(
   guice,
@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
   "org.languagetool" % "language-en" % "6.6",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.4",
 
-  "org.projectlombok" % "lombok" % "1.18.38" % "provided",
+  "org.projectlombok" % "lombok" % "1.18.42" % "provided",
 
   "org.assertj" % "assertj-core" % "3.27.3" % "test",
   "org.mockito" %% "mockito-scala" % "1.17.45" % "test",
