@@ -21,6 +21,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers ++= Seq("Spring Release Repository" at "https://repo.spring.io/plugins-release")
 
+javacOptions += "-proc:full"
+
 scalaVersion := "2.13.18"
 pipelineStages := Seq(digest)
 libraryDependencies ++= Seq(
