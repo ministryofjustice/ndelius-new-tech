@@ -21,7 +21,7 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers ++= Seq("Spring Release Repository" at "https://repo.spring.io/plugins-release")
 
-scalaVersion := "2.13.17"
+scalaVersion := "2.13.18"
 pipelineStages := Seq(digest)
 libraryDependencies ++= Seq(
   guice,
