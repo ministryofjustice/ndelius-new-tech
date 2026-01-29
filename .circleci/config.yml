@@ -1,7 +1,7 @@
 defaults: &defaults
   working_directory: ~/ndelius-new-tech
   docker:
-    - image: cimg/openjdk:21.0-browsers
+    - image: cimg/openjdk:25.0-browsers
 
 version: 2.1
 
@@ -23,13 +23,18 @@ jobs:
             - v2-ndelius-new-tech-{{ checksum "build.sbt" }}
             - v2-ndelius-new-tech-
       - run:
+          name: Clean npm cache
+          command: | 
+            rm -rf node_modules
+            npm cache clean --force
+      - run:
           name: npm install
           command: npm ci
       - run:
           name: Compile
           command: |
             export _JAVA_OPTIONS="-Xms512m -Xmx1224m"
-            export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
+            export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node"
             sbt compile < /dev/null
       - persist_to_workspace:
           root: .
@@ -50,7 +55,7 @@ jobs:
           name: Unit tests
           command: |
             export _JAVA_OPTIONS="-Xms512m -Xmx1224m"
-            export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
+            export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node"
             export CUCUMBER_FILTER_TAGS="@None"
             sbt test < /dev/null
       - store_test_results:
@@ -71,7 +76,7 @@ jobs:
           name: BDD - SFR
           command: |
             export _JAVA_OPTIONS="-Xms512m -Xmx1224m"
-            export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which nodejs)"
+            export SBT_OPTS="${SBT_OPTS} -Dsbt.jse.engineType=Node"
             export CUCUMBER_FILTER_TAGS="@SFR"
             (sbt "testOnly bdd.RunCucumber" < /dev/null) || if [ -s "target/cucumber-rerun.txt" ]; then sbt "testOnly bdd.RerunCucumber" < /dev/null; fi
       - store_test_results:

@@ -3,6 +3,7 @@ import com.typesafe.sbt.jse.SbtJsEngine.autoImport.JsEngineKeys.*
 import com.typesafe.sbt.jse.SbtJsTask.executeJs
 import com.typesafe.sbt.web.incremental
 import com.typesafe.sbt.web.incremental.{OpInputHash, OpInputHasher, OpResult, OpSuccess}
+import org.irundaia.sbt.sass.SbtSassify.autoImport.SassKeys.sassify
 
 import scala.concurrent.duration.*
 
@@ -18,10 +19,13 @@ version := sys.env.getOrElse("APP_VERSION",
 lazy val root = (project in file(".")).enablePlugins(PlayJava, SbtWeb, SbtJsEngine).configs( IntegrationTest )
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
+npmSubcommand := NpmSubcommand.Ci
 
 resolvers ++= Seq("Spring Release Repository" at "https://repo.spring.io/plugins-release")
 
-scalaVersion := "2.13.16"
+javacOptions += "-proc:full"
+
+scalaVersion := "2.13.18"
 pipelineStages := Seq(digest)
 libraryDependencies ++= Seq(
   guice,
@@ -39,7 +43,7 @@ libraryDependencies ++= Seq(
   "org.languagetool" % "language-en" % "6.6",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.4",
 
-  "org.projectlombok" % "lombok" % "1.18.38" % "provided",
+  "org.projectlombok" % "lombok" % "1.18.42" % "provided",
 
   "org.assertj" % "assertj-core" % "3.27.3" % "test",
   "org.mockito" %% "mockito-scala" % "1.17.45" % "test",
@@ -124,6 +128,8 @@ browserifyTask := {
 
   results._2
 }
+
+Assets / sassify := ((Assets / sassify) dependsOn (Assets / npmNodeModules)).value
 
 Assets / sourceGenerators +=  browserifyTask.taskValue
 Assets / resourceDirectories += browserifyOutputDir.value

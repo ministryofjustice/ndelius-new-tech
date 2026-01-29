@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 RUN addgroup --gid 2000 appgroup && \
     adduser --uid 2000 --system appuser --ingroup appgroup
