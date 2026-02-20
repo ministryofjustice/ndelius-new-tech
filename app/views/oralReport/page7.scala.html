@@ -47,6 +47,7 @@
             @inputRadioGroup(
                 reportForm("likelihoodLevel1"),
                 options(
+                    "Very High" -> "Very High",
                     "High" -> "High",
                     "Medium" -> "Medium",
                     "Low" -> "Low",
@@ -67,6 +68,7 @@
             @inputRadioGroup(
                 reportForm("likelihoodLevel2"),
                 options(
+                    "Very High" -> "Very High",
                     "High" -> "High",
                     "Medium" -> "Medium",
                     "Low" -> "Low",
@@ -87,6 +89,7 @@
             @inputRadioGroup(
                 reportForm("likelihoodLevel3"),
                 options(
+                    "Very High" -> "Very High",
                     "High" -> "High",
                     "Medium" -> "Medium",
                     "Low" -> "Low",
@@ -107,6 +110,7 @@
             @inputRadioGroup(
                 reportForm("likelihoodLevel4"),
                 options(
+                    "Very High" -> "Very High",
                     "High" -> "High",
                     "Medium" -> "Medium",
                     "Low" -> "Low",
@@ -122,14 +126,6 @@
 
 <h2 class="govuk-fieldset__heading"><span class="govuk-caption-xl">Risk of serious harm</span></h2>
 
-<div class="govuk-warning-text moj-warning-text govuk-!-margin-top-4">
-    <span aria-hidden="true" class="govuk-warning-text__icon">!</span>
-    <strong class="govuk-warning-text__text">
-        <span class="govuk-warning-text__assistive">Warning</span>
-        Very high risk is not included as an option. If the person is assessed as having a very high risk of serious harm, an oral report is not the appropriate means for assessment.
-    </strong>
-</div>
-
 <div class="govuk-form-group" data-module="progressive-radios">
     <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-label">
@@ -139,6 +135,7 @@
         @inputRadioGroup(
             reportForm("riskOfSeriousHarm"),
             options(
+                "Very High" -> "Very High",
                 "High" -> "High",
                 "Medium" -> "Medium",
                 "Low" -> "Low"
