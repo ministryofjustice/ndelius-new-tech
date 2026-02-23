@@ -9,10 +9,7 @@ import { initTextAreas } from './textAreas'
 
 jest.mock('tinymce/tinymce')
 jest.mock('tinymce/icons/default/icons', () => ({}));
-jest.mock('tinymce/plugins/help/plugin', () => ({}));
-jest.mock('tinymce/plugins/lists/plugin', () => ({}));
-jest.mock('tinymce/plugins/paste/plugin', () => ({}));
-jest.mock('tinymce/plugins/spellchecker/plugin', () => ({}));
+
 
 jest.mock('../components/saveIcon')
 jest.mock('../utilities/xhrPromisify', () => ({

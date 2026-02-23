@@ -1,10 +1,5 @@
 import tinymce from 'tinymce/tinymce'
 import 'tinymce/themes/silver/theme'
-import 'tinymce/plugins/autoresize/plugin'
-import 'tinymce/plugins/help/plugin'
-import 'tinymce/plugins/lists/plugin'
-import 'tinymce/plugins/paste/plugin'
-import 'tinymce/plugins/spellchecker/plugin'
 import 'tinymce/icons/default/icons'
 
 import {autoSaveProgress} from '../helpers/saveProgressHelper'
@@ -178,11 +173,11 @@ const initTextAreas = () => {
     allow_conditional_comments: true,
     fixed_toolbar_container: '#tinymce-toolbar',
     selector: '.moj-rich-text-editor:not(.moj-textarea--classic)',
-    plugins: 'autoresize lists paste help spellchecker',
+    plugins: 'lists help',
     width: '100%',
     min_height: 145,
     valid_elements: 'p,p[style],span[style],ul,ol,li,li[style],strong/b,em/i,br',
-    toolbar: 'undo redo | bold italic underline | alignleft alignjustify | numlist bullist | spellchecker',
+    toolbar: 'undo redo | bold italic underline | alignleft alignjustify | numlist bullist',
     valid_classes: {
       'p': '',
       'span': ''
@@ -192,11 +187,8 @@ const initTextAreas = () => {
       'li': 'text-align',
       'span': 'text-decoration'
     },
-    paste_enable_default_filters: 'false',
-    paste_word_valid_elements: 'p,b,i,strong,em,ol,ul,li',
     document_base_url: `${ localPath.substr(0, localPath.indexOf('/') + 1) }`,
     skin_url: 'assets/skins/ui/oxide',
-    spellchecker_languages: 'English=en',
     setup: $editor => {
       $editor.on('init', () => {
         addPlaceholder($editor)
@@ -222,28 +214,6 @@ const initTextAreas = () => {
       $editor.on('input', () => {
         updateTextLimits($editor)
       })
-    },
-    spellchecker_callback: function (method, text, success, failure) {
-      if (method === 'spellcheck') {
-        isSpellChecking(currentEditor, true)
-        tinymce.util.JSONRequest.sendRPC({
-          url: '../spellcheck',
-          params: {
-            words: text.match(this.getWordCharPattern())
-          },
-          success: result => {
-            isSpellChecking(currentEditor, false)
-            success(result)
-            setFocusIfSpellingMistakes()
-          },
-          error: (error, xhr) => {
-            isSpellChecking(currentEditor, false)
-            failure('Spellcheck error:' + xhr.status)
-          }
-        })
-      } else {
-        failure('Unsupported spellcheck method')
-      }
     }
   })
 }
