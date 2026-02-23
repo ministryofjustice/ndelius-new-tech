@@ -8,6 +8,12 @@ import { initTextAreas } from './textAreas'
  */
 
 jest.mock('tinymce/tinymce')
+jest.mock('tinymce/icons/default/icons', () => ({}));
+jest.mock('tinymce/plugins/help', () => ({}));
+jest.mock('tinymce/plugins/lists', () => ({}));
+jest.mock('tinymce/plugins/paste', () => ({}));
+jest.mock('tinymce/plugins/spellchecker', () => ({}));
+
 jest.mock('../components/saveIcon')
 jest.mock('../utilities/xhrPromisify', () => ({
   promisifyXMLHttpRequest: jest.fn().mockImplementation(() => {
