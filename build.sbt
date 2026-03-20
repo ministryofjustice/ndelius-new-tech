@@ -48,7 +48,7 @@ libraryDependencies ++= Seq(
   "org.assertj" % "assertj-core" % "3.27.7" % "test",
   "org.mockito" %% "mockito-scala" % "1.17.7" % "test",
   "org.wiremock" % "wiremock" % "3.13.2" % "test",
-  "org.seleniumhq.selenium" % "selenium-chrome-driver" % "4.41.0" % "test",
+  "org.seleniumhq.selenium" % "selenium-chrome-driver" % "4.33.0" % "test",
   "io.github.bonigarcia" % "webdrivermanager" % "6.3.3",
   "io.cucumber" % "cucumber-guice" % "7.34.3" % "test",
   "io.cucumber" % "cucumber-java" % "7.34.3" % "test",
