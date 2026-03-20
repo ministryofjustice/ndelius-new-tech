@@ -58,7 +58,7 @@ libraryDependencies ++= Seq(
 dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core" % "2.21.1",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.21.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.21",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.1",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.21.1",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.21.1",
