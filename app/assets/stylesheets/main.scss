@@ -1,6 +1,6 @@
 $govuk-fonts-path: '../fonts/';
 
-@import "../../../node_modules/govuk-frontend/dist/govuk/all";
+@import "../../../node_modules/govuk-frontend/dist/govuk/index";
 
 @import 'app/all';
 
