@@ -3,7 +3,7 @@ import com.typesafe.sbt.jse.SbtJsEngine.autoImport.JsEngineKeys.*
 import com.typesafe.sbt.jse.SbtJsTask.executeJs
 import com.typesafe.sbt.web.incremental
 import com.typesafe.sbt.web.incremental.{OpInputHash, OpInputHasher, OpResult, OpSuccess}
-import org.irundaia.sbt.sass.SbtSassify.autoImport.SassKeys.sassify
+import uk.gov.hmrc.SbtSassCompiler.autoImport.compileSass
 
 import scala.concurrent.duration.*
 
@@ -129,10 +129,9 @@ browserifyTask := {
   results._2
 }
 
-Assets / sassify := ((Assets / sassify) dependsOn (Assets / npmNodeModules)).value
-
 Assets / sourceGenerators +=  browserifyTask.taskValue
 Assets / resourceDirectories += browserifyOutputDir.value
+Assets / compileSass := ((Assets / compileSass) dependsOn (Assets / npmNodeModules)).value
 IntegrationTest / unmanagedResourceDirectories += baseDirectory.value  / "target/web/public/test"
 Test / unmanagedResourceDirectories += baseDirectory.value / "target/web/public/test"
 Test / unmanagedResourceDirectories += baseDirectory.value / "features"
