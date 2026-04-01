@@ -3,6 +3,7 @@ import com.typesafe.sbt.jse.SbtJsEngine.autoImport.JsEngineKeys.*
 import com.typesafe.sbt.jse.SbtJsTask.executeJs
 import com.typesafe.sbt.web.incremental
 import com.typesafe.sbt.web.incremental.{OpInputHash, OpInputHasher, OpResult, OpSuccess}
+import uk.gov.hmrc.SbtAutoBuildPlugin
 
 import scala.concurrent.duration.*
 
@@ -128,47 +129,8 @@ browserifyTask := {
   results._2
 }
 
-val sassifyTask = taskKey[Seq[File]]("Run Dart Sass via Node")
-val sassifyOutputDir = settingKey[File]("Sass output directory")
-sassifyOutputDir := target.value / "web" / "sass"
-
-sassifyTask := {
-  val sourceDir = (Assets / sourceDirectory).value / "stylesheets"
-
-  implicit val fileHasherIncludingOptions: OpInputHasher[File] =
-    OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath))
-  val sources = (sourceDir ** "*.scss").get
-  val outputFile = sassifyOutputDir.value / "stylesheets" / "main.css"
-
-  val results = incremental.syncIncremental((Assets / streams).value.cacheDirectory / "sass", sources) {
-    modifiedSources: Seq[File] =>
-      if (modifiedSources.nonEmpty) {
-        ( Assets / npmNodeModules ).value
-        val inputFile = sourceDir / "main.scss"
-        val modules = (baseDirectory.value / "node_modules").getAbsolutePath
-        sassifyOutputDir.value.mkdirs
-        executeJs(state.value,
-          engineType.value,
-          None,
-          Seq(modules),
-          baseDirectory.value / "sassify.js",
-          Seq(inputFile.getPath, outputFile.getPath),
-          60.seconds)
-        ()
-      }
-
-      val opResults: Map[File, OpResult] =
-        modifiedSources.map(file => (file, OpSuccess(Set(file), Set(outputFile)))).toMap
-      (opResults, List(outputFile))
-  }(fileHasherIncludingOptions)
-
-  results._2
-}
-
 Assets / sourceGenerators +=  browserifyTask.taskValue
-Assets / sourceGenerators +=  sassifyTask.taskValue
 Assets / resourceDirectories += browserifyOutputDir.value
-Assets / resourceDirectories += sassifyOutputDir.value
 IntegrationTest / unmanagedResourceDirectories += baseDirectory.value  / "target/web/public/test"
 Test / unmanagedResourceDirectories += baseDirectory.value / "target/web/public/test"
 Test / unmanagedResourceDirectories += baseDirectory.value / "features"
