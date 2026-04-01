@@ -4,6 +4,62 @@ on:
   schedule:
     - cron: "30 6 * * MON-FRI"
 jobs:
+  assembly:
+    name: Assemble jar
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download workspace
+        uses: actions/download-artifact@v7
+        with:
+          name: workspace
+          path: .
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'sbt'
+          cache-dependency-path: build.sbt
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Restore sbt cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
+          restore-keys: |
+            v2-ndelius-new-tech-
+
+      - name: Run sbt assembly
+        env:
+          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
+          APP_VERSION: ${{ github.run_number }}
+        run: |
+          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+          sbt 'set test in assembly := {}' assembly < /dev/null
+
+      - name: Save Fat Jar
+        run: |
+          mkdir -p target/artifacts
+          rm target/scala-2.13/ndelius2_*-web-assets.jar
+          cp target/scala-2.13/*.jar target/artifacts/
+          cp target/artifacts/ndelius2*.jar target/artifacts/ndelius2.jar
+
   security-veracode-pipeline-scan:
     name: Security Veracode pipeline scan
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_pipeline_scan.yml@96b1ed2a59da5e9b1c97b03f02d7e0e067ab82aa
