@@ -12,12 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Download workspace
-        uses: actions/download-artifact@v7
-        with:
-          name: workspace
-          path: .
-
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -35,15 +29,12 @@ jobs:
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
 
-      - name: Restore sbt cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: v2-ndelius-new-tech-${{ hashFiles('build.sbt') }}
-          restore-keys: |
-            v2-ndelius-new-tech-
+      - name: Compile Scala code
+        env:
+          _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
+        run: |
+          export SBT_OPTS="-Dsbt.jse.engineType=Node -Dsbt.jse.command=$(which node)"
+          sbt compile < /dev/null
 
       - name: Run sbt assembly
         env:
@@ -62,6 +53,7 @@ jobs:
 
   security-veracode-pipeline-scan:
     name: Security Veracode pipeline scan
+    needs: [assembly]
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_pipeline_scan.yml@96b1ed2a59da5e9b1c97b03f02d7e0e067ab82aa
     with:
       channel_id: ${{ vars.SECURITY_ALERTS_SLACK_CHANNEL_ID || 'NO_SLACK' }}
