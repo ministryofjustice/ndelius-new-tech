@@ -10,16 +10,16 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: '22'
           cache: 'npm'
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: build.sbt
 
       - name: Setup sbt
-        uses: sbt/setup-sbt@v1
+        uses: sbt/setup-sbt@508b753e53cb6095967669e0911487d2b9bc9f41 # v1.1.22
 
       - name: Compile Scala code
         env:
@@ -57,7 +57,7 @@ jobs:
           zip source.zip ndelius2.jar
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: build-results
           path: target/artifacts/source.zip
@@ -65,7 +65,7 @@ jobs:
   security-veracode-pipeline-scan:
     name: Security Veracode pipeline scan
     needs: [assembly]
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_pipeline_scan.yml@96b1ed2a59da5e9b1c97b03f02d7e0e067ab82aa
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_pipeline_scan.yml@d79e83be2cc392b981dd92c8f6f85007d18032e9 # v2.10.1
     with:
       channel_id: ${{ vars.SECURITY_ALERTS_SLACK_CHANNEL_ID || 'NO_SLACK' }}
       veracode_package_artifact_name: build-results
