@@ -3,6 +3,7 @@ import com.typesafe.sbt.jse.SbtJsEngine.autoImport.JsEngineKeys.*
 import com.typesafe.sbt.jse.SbtJsTask.executeJs
 import com.typesafe.sbt.web.incremental
 import com.typesafe.sbt.web.incremental.{OpInputHash, OpInputHasher, OpResult, OpSuccess}
+import uk.gov.hmrc.SbtSassCompiler.autoImport.compileSass
 
 import scala.concurrent.duration.*
 
@@ -18,10 +19,13 @@ version := sys.env.getOrElse("APP_VERSION",
 lazy val root = (project in file(".")).enablePlugins(PlayJava, SbtWeb, SbtJsEngine).configs( IntegrationTest )
 
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
+npmSubcommand := NpmSubcommand.Ci
 
 resolvers ++= Seq("Spring Release Repository" at "https://repo.spring.io/plugins-release")
 
-scalaVersion := "2.13.16"
+javacOptions += "-proc:full"
+
+scalaVersion := "2.13.18"
 pipelineStages := Seq(digest)
 libraryDependencies ++= Seq(
   guice,
@@ -31,35 +35,35 @@ libraryDependencies ++= Seq(
   "org.webjars.bower" % "chartjs" % "2.6.0",
   "org.webjars" % "underscorejs" % "1.13.0-2",
   "org.webjars" % "jquery" % "3.7.1",
-  "org.webjars" % "jquery-ui" % "1.14.1",
+  "org.webjars" % "jquery-ui" % "1.14.2",
   "org.mongodb" % "mongodb-driver-rx" % "1.5.0",
-  "commons-io" % "commons-io" % "2.19.0",
-  "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.24.3",
+  "commons-io" % "commons-io" % "2.21.0",
+  "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.25.3",
   "com.github.ua-parser" % "uap-java" % "1.6.1",
-  "org.languagetool" % "language-en" % "6.6",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.4",
+  "org.languagetool" % "language-en" % "6.7",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.1",
 
-  "org.projectlombok" % "lombok" % "1.18.38" % "provided",
+  "org.projectlombok" % "lombok" % "1.18.44" % "provided",
 
-  "org.assertj" % "assertj-core" % "3.27.3" % "test",
-  "org.mockito" %% "mockito-scala" % "1.17.45" % "test",
-  "org.wiremock" % "wiremock" % "3.13.0" % "test",
+  "org.assertj" % "assertj-core" % "3.27.7" % "test",
+  "org.mockito" %% "mockito-scala" % "1.17.7" % "test",
+  "org.wiremock" % "wiremock" % "3.13.2" % "test",
   "org.seleniumhq.selenium" % "selenium-chrome-driver" % "4.33.0" % "test",
-  "io.github.bonigarcia" % "webdrivermanager" % "6.1.0",
-  "io.cucumber" % "cucumber-guice" % "7.23.0" % "test",
-  "io.cucumber" % "cucumber-java" % "7.23.0" % "test",
-  "io.cucumber" % "cucumber-junit" % "7.23.0" % "test"
+  "io.github.bonigarcia" % "webdrivermanager" % "6.3.3",
+  "io.cucumber" % "cucumber-guice" % "7.34.3" % "test",
+  "io.cucumber" % "cucumber-java" % "7.34.3" % "test",
+  "io.cucumber" % "cucumber-junit" % "7.34.3" % "test"
 )
 
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.18.4",
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.4",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.18.4",
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.18.4",
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.18.4",
-  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.18.4",
-  "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % "2.18.4",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.4",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.21.1",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.21.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.21",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.21.1",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.21.1",
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.21.1",
+  "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % "2.21.1",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.21.1",
 )
 
 excludeDependencies ++= Seq(
@@ -127,6 +131,7 @@ browserifyTask := {
 
 Assets / sourceGenerators +=  browserifyTask.taskValue
 Assets / resourceDirectories += browserifyOutputDir.value
+Assets / compileSass := ((Assets / compileSass) dependsOn (Assets / npmNodeModules)).value
 IntegrationTest / unmanagedResourceDirectories += baseDirectory.value  / "target/web/public/test"
 Test / unmanagedResourceDirectories += baseDirectory.value / "target/web/public/test"
 Test / unmanagedResourceDirectories += baseDirectory.value / "features"
