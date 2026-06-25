@@ -33,5 +33,8 @@
     "moment": "^2.30.1",
     "tinymce": "^5.10.9",
     "whatwg-fetch": "^3.6.20"
+  },
+  "overrides": {
+    "js-yaml": "^4.1.10"
   }
 }
