@@ -19,7 +19,7 @@ jobs:
           cache: 'npm'
 
       - name: Setup Java
-        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -65,7 +65,7 @@ jobs:
   security-veracode-pipeline-scan:
     name: Security Veracode pipeline scan
     needs: [assembly]
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_pipeline_scan.yml@85aaea1bb60639a12bb495cdfe8db46c2d61b54d # v2.15.1
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_pipeline_scan.yml@3099514d634a6b7bcd443ea82fde249861702515 # v2.17.0
     with:
       channel_id: ${{ vars.SECURITY_ALERTS_SLACK_CHANNEL_ID || 'NO_SLACK' }}
       veracode_package_artifact_name: build-results
