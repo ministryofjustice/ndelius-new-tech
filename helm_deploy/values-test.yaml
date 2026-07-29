@@ -18,6 +18,7 @@ generic-service:
       - moj_cloud_platform
       - digital_staff_and_mojo
       - unilink_staff
+      - mod-platform-non-live
     delius-test-1: "35.176.126.163/32"
     delius-test-2: "35.178.162.73/32"
     delius-test-3: "52.56.195.113/32"
