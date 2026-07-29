@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: build.sbt
 
       - name: Setup sbt
-        uses: sbt/setup-sbt@6444f4c8111de4b9059c3975def104b03cfaa5f0 # v1.5.2
+        uses: sbt/setup-sbt@f6db8ab474efba716fc7f04441ab33714e4825af # v1.5.4
 
       - name: Compile Scala code
         env:
@@ -65,7 +65,7 @@ jobs:
   security-veracode-policy-check:
     name: Security Veracode policy scan
     needs: [assembly]
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_policy_scan.yml@3d0db04bde36486d182b5c7d4a3bb8794bdeb2c6 # v2.18.0
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_policy_scan.yml@2a7bb1a9bdaa0ebad11f03538dbcf396ba3b7779 # v2.19.0
     with:
       channel_id: ${{ vars.SECURITY_ALERTS_SLACK_CHANNEL_ID || 'NO_SLACK' }}
       veracode_package_artifact_name: build-results
