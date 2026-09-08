@@ -16,7 +16,6 @@ on:
         required: true
         default: ''
         type: string
-  push:
 
 permissions:
   contents: read
@@ -34,7 +33,7 @@ jobs:
       environment: ${{ inputs.environment }}
 
   deploy:
-    name: Deploy to test environment
+    name: Deploy to environment
     needs:
       - helm_lint
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW VERSION
