@@ -19,7 +19,7 @@ jobs:
           cache: 'npm'
 
       - name: Setup Java
-        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: build.sbt
 
       - name: Setup sbt
-        uses: sbt/setup-sbt@c7d2d6258b4bd0d3ec5129e6b3453199d3c79729 # v1.5.8
+        uses: sbt/setup-sbt@82da71df4e122282484a99a8d70096bc2369dbd8 # v1.5.9
 
       - name: Compile Scala code
         env:
@@ -65,7 +65,7 @@ jobs:
   security-veracode-policy-check:
     name: Security Veracode policy scan
     needs: [assembly]
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_policy_scan.yml@cac1d8a3f24bb0126c763ab7f33529cd2dd0a7f6 # v2.21.2
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_policy_scan.yml@0eaf271d3179fb9946d49f3c02343e26342c159d # v2.21.3
     with:
       channel_id: ${{ vars.SECURITY_ALERTS_SLACK_CHANNEL_ID || 'NO_SLACK' }}
       veracode_package_artifact_name: build-results
