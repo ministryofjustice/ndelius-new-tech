@@ -10,6 +10,11 @@ generic-service:
     NOMIS_API_BASE_URL: https://prison-api.prison.service.justice.gov.uk/
     STORE_ALFRESCO_URL: https://hmpps-delius-alfresco-prod.apps.live.cloud-platform.service.justice.gov.uk/alfresco/service/
 
+  allowlist:
+    mod-platform-live-eu-west-2a-nat: "13.41.38.176/32"
+    mod-platform-live-eu-west-2c-nat: "3.11.197.133/32"
+    mod-platform-live-eu-west-2b-nat: "3.8.81.175/32"
+    
 generic-prometheus-alerts:
   alertSeverity: probation-integration-notifications
   businessHoursOnly: true
