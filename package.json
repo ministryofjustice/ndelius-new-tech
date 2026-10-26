@@ -19,7 +19,7 @@
     "browserify": "^17.0.1",
     "chai": "^6.3.0",
     "chai-shallow-deep-equal": "^1.4.6",
-    "core-js": "^3.50.0",
+    "core-js": "^3.51.0",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
     "sinon": "^22.1.0",
