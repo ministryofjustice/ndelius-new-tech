@@ -1,4 +1,4 @@
-FROM ghcr.io/ministryofjustice/hmpps-eclipse-temurin:25-jre-alpine
+FROM ghcr.io/ministryofjustice/hmpps-eclipse-temurin:25-jre-jammy
 
 USER 2000
 
