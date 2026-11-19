@@ -22,7 +22,7 @@ permissions:
   packages: write
 
 env:
-  _JAVA_OPTIONS: "-Xms512m -Xmx1224m -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 -XX:-UseBASE64Intrinsics"
+  _JAVA_OPTIONS: "-Xms512m -Xmx1224m"
 
 jobs:
   helm_lint:
