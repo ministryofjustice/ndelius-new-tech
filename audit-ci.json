@@ -3,7 +3,6 @@
     "package-manager": "auto",
     "registry": "https://registry.npmjs.org",
     "allowlist": [
-        "tinymce",
-        "braces"
+        "tinymce"
     ]
 }
